@@ -1,40 +1,84 @@
 # Git Commit Template for OpenIDEA
 
-面向 **OpenIDEA（v0.1.53+ / Plugin API `^1.16`）** 的 Git 提交信息模板插件。
+**English** | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
 
-挂载在 Git 提交（Commit）面板输入框上方的工具栏中，点击后直接在屏幕中央主区域弹出**完整卡片式可视化大表单**，点击 **【好的】**、**【取消】** 或按 `Esc` 即可自动关闭表单页，并内置 **Conventional Commits 提交前规范检查**。
+A visual **Conventional Commits** template plugin for **OpenIDEA** (`v0.1.53+`, Plugin API `^1.16`).
 
-## 功能特性
+Mounted directly on the Git Commit toolbar, clicking the icon opens a centered, dialog-style commit form in the main editor area — fill in your structured commit message, press **OK** (or `Ctrl+Enter` / `Cmd+Enter`), and the plugin writes the formatted message into the Commit input box and **automatically closes the form**.
 
-- **居中卡片式完整大表单 + 自动关闭**：
-  - 点击 Commit 工具栏图标，或按下快捷键 `Ctrl+Alt+Shift+C`（macOS：`Cmd+Alt+Shift+C`）即可在主区域居中打开完整表单。
-  - **【好的】 / `Ctrl+Enter`**：校验并一键填入 Git 提交消息输入框，随后**自动关闭表单页**。
-  - **【取消】 / 右上角 `×` / `Esc`**：不修改提交框内容，**自动关闭表单页**。
-- **经典完整中文表单**（自动适配 OpenIDEA 深色 / 浅色主题）：
-  - **提交类型**：11 项经典单选列表（`feat` / `fix` / `docs` / `style` / `refactor` / `perf` / `test` / `build` / `ci` / `chore` / `revert`）
-  - **变更范围**：自由输入 + 下拉选择，自动记忆最近 20 条常用范围（支持单条删除）
-  - **简短说明**：必填校验、实时统计标题字符数与超长提醒
-  - **详细说明**：支持多行描述，默认开启 72 字符自动换行（兼容中英文）
-  - **重大变化**：自动添加 `BREAKING CHANGE:` 前缀，支持勾选标题 `!` 标记（如 `feat!:`）
-  - **关闭 issues**：支持 `Closes` / `Fixes` / `Resolves` 关键字选择（如输入 `123, 456` 自动生成 `Closes #123, #456`）
-  - **跳过 CI 流程**：勾选后自动附加 `[skip ci]`
-  - **双向同步**：打开表单时自动读取并解析当前 Commit 输入框已有内容，预览统一由 Rust 后端实时生成。
-- **Conventional Commits 提交前规范检查（`commitChecks`）**：
-  - 可在 Commit 选项（Before Commit）中启用 **Conventional Commits 规范检查**，自动拦截空提交或不规范标题，放行 `Merge` / `Revert` / `fixup!` / `squash!` 等自动生成消息。
+![Git Commit Template — English UI](docs/screenshots/en.png)
 
-## 安装方法（OpenIDEA 0.1.53+）
+<details>
+<summary>More localized screenshots (简体中文 / 繁體中文 / 日本語 / 한국어)</summary>
 
-1. 从 GitHub Actions 构建产物（Artifacts）下载打包好的 `.oiplugin` 文件。
-2. 打开 OpenIDEA，进入 **Settings → Plugins**。
-3. 点击右上角齿轮图标，选择 **Install Plugin from Disk…**，选中 `.oiplugin` 文件（若之前已安装旧版本，重装后确认授予新增的 `ide.commands` 权限用于自动关闭表单标签页）。
-4. 重载后即可在 Git 提交面板工具栏点击图标使用。
+| 简体中文 (`zh-CN`) | 繁體中文 (`zh-TW`) |
+| --- | --- |
+| ![zh-CN](docs/screenshots/zh-CN.png) | ![zh-TW](docs/screenshots/zh-TW.png) |
 
-## 从源码构建与测试
+| 日本語 (`ja`) | 한국어 (`ko`) |
+| --- | --- |
+| ![ja](docs/screenshots/ja.png) | ![ko](docs/screenshots/ko.png) |
+
+</details>
+
+## Features
+
+- **Centered Dialog-Card Form with Auto-Close**:
+  - Click the Commit toolbar icon or press `Ctrl+Alt+Shift+C` (`Cmd+Alt+Shift+C` on macOS) to open a clean, centered form card.
+  - **OK / `Ctrl+Enter`**: Validates and populates the Commit message box, then automatically closes the form tab.
+  - **Cancel / `×` / `Esc`**: Closes the form tab immediately without modifying your existing commit draft.
+- **Complete Conventional Commits Support**:
+  - **Commit Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+  - **Scope History**: Free-text input + dropdown history remembering your 20 most recent scopes (with per-item removal).
+  - **Subject Validation & Length Counter**: Prevents accidental empty subjects and highlights headers exceeding 72 characters.
+  - **72-Character Body Wrapping**: Word-aware wrapping for Latin scripts and clean character-boundary wrapping for CJK text.
+  - **Breaking Changes**: Supports both `BREAKING CHANGE:` footer blocks and header `!` markers (e.g., `feat(api)!:`).
+  - **Issue References**: Supports `Closes`, `Fixes`, and `Resolves` keywords (e.g., `128` → `Closes #128`) without corrupting normal English body paragraphs starting with words like *"Fix ..."* or *"Close ..."*.
+  - **Skip CI**: Appends `[skip ci]` with a single checkbox.
+  - **Two-Way Sync**: Automatically parses the current Commit box draft back into form fields for effortless re-editing.
+- **Before-Commit Check (`commitChecks`)**:
+  - Optional **Conventional Commits Format** check in *Commit Options → Before Commit* that catches malformed headers while automatically allowing `Merge`, `Revert`, `fixup!`, and `squash!` commits.
+- **Full Internationalization (11 Languages)**:
+  - Automatically follows OpenIDEA's UI language (`en`, `zh-CN`, `zh-TW`, `ja`, `ko`, `fr`, `es-MX`, `pt-BR`, `pl`, `tr-TR`, `ru`) across manifest menus, form UI, validation hints, and commit checks.
+
+## Permissions & Capabilities Justification
+
+In accordance with OpenIDEA's security model, this plugin runs in a sandboxed WebAssembly component with **no network, process, or project-file access**. It requests only the following capabilities:
+
+| Capability | Risk Level | Why It Is Needed |
+| --- | --- | --- |
+| `vcs.read` | Low | Reads the current pending commit draft (`host::pending_commit`) to pre-fill the form and run the optional before-commit format check. |
+| `vcs.write` | Low | Writes the formatted Conventional Commits message back into the Commit input box (`host::set_commit_message`). |
+| `storage` | Low | Persists up to 20 recent scopes and your preferred default type / 72-char wrap toggle in plugin-local storage. |
+| `ide.commands` | High | Invokes **only** `toolwindow.focusEditor` and `editor.closeTab` so the centered custom-editor form tab closes itself automatically when you click **OK**, **Cancel**, or press `Esc` (since `openidea:plugin/views` does not yet expose a dedicated `close` API). No external commands, VCS pushes, or shell actions are ever executed. |
+
+## Installation
+
+### From `.oiplugin` Package
+
+1. Download the `.oiplugin` package from [Releases](https://github.com/chongchong59699/openidea-git-commit-template/releases) or GitHub Actions artifacts.
+2. Open OpenIDEA and navigate to **Settings → Plugins**.
+3. Click the gear icon (`⚙`) → **Install Plugin from Disk…** and select the `.oiplugin` file.
+4. Approve the capabilities listed above and reload when prompted.
+
+### Development Mode (`openidea-plugin link`)
 
 ```bash
-# 运行单元测试（基于官方 MockHost）
+openidea-plugin build .
+openidea-plugin link .
+```
+
+## Building & Testing from Source
+
+```bash
+# Run unit tests against OpenIDEA's official MockHost
 cargo test
 
-# 编译 WASM 组件并执行官方清单与链接校验
+# Build wasm32-wasip2 component and run manifest/component verification
 openidea-plugin build .
+openidea-plugin pack .
 ```
+
+## License
+
+Released under the [MIT License](LICENSE).

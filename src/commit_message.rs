@@ -1,3 +1,4 @@
+use crate::i18n::UiLocale;
 use serde::{Deserialize, Serialize};
 
 pub const COMMIT_TYPES: &[(&str, &str, &str)] = &[
@@ -60,9 +61,9 @@ impl Default for CommitForm {
 }
 
 /// Validates a [`CommitForm`] before writing it to the commit message box.
-pub fn validate_form(form: &CommitForm) -> Result<(), String> {
+pub fn validate_form(form: &CommitForm, locale: UiLocale) -> Result<(), String> {
     if form.subject.trim().is_empty() {
-        return Err("请填写简短说明（提交标题不能为空）。".to_string());
+        return Err(locale.empty_subject_error().to_string());
     }
     Ok(())
 }
@@ -213,12 +214,12 @@ pub fn parse_commit_message(raw: &str, default_type: &str, default_wrap_72: bool
 }
 
 /// Checks whether a raw commit message satisfies Conventional Commits rules.
-/// Returns a list of human-readable problem descriptions (empty if valid).
-pub fn validate_conventional_commit(raw: &str) -> Vec<String> {
+/// Returns a list of localized problem descriptions (empty if valid).
+pub fn validate_conventional_commit(raw: &str, locale: UiLocale) -> Vec<String> {
     let normalized = normalize_newlines(raw);
     let trimmed = normalized.trim();
     if trimmed.is_empty() {
-        return vec!["提交信息不能为空。".to_string()];
+        return vec![locale.check_empty_message().to_string()];
     }
 
     let mut lines = normalized.lines();
@@ -239,7 +240,7 @@ pub fn validate_conventional_commit(raw: &str) -> Vec<String> {
             ..
         }) => {
             if subject.trim().is_empty() {
-                problems.push("提交标题缺少简短说明（冒号后不能为空）。".to_string());
+                problems.push(locale.check_missing_subject().to_string());
             }
         }
         Some(ParsedHeader {
@@ -250,19 +251,16 @@ pub fn validate_conventional_commit(raw: &str) -> Vec<String> {
                 .map(|(id, _, _)| *id)
                 .collect::<Vec<_>>()
                 .join("/");
-            problems.push(format!("未知的提交类型，请使用标准类型（{allowed}）。"));
+            problems.push(locale.check_unknown_type(&allowed));
         }
         None => {
-            problems.push(
-                "提交标题不符合 Conventional Commits 规范（示例：feat(scope): 简短说明）。"
-                    .to_string(),
-            );
+            problems.push(locale.check_invalid_header().to_string());
         }
     }
 
     if let Some(second_line) = lines.next() {
         if !second_line.trim().is_empty() {
-            problems.push("提交标题与正文之间应保留一个空行。".to_string());
+            problems.push(locale.check_missing_blank_line().to_string());
         }
     }
 
@@ -647,16 +645,17 @@ mod tests {
             subject: "   ".into(),
             ..CommitForm::default()
         };
-        assert!(validate_form(&form).is_err());
+        assert!(validate_form(&form, UiLocale::En).is_err());
+        assert!(validate_form(&form, UiLocale::ZhCn).is_err());
     }
 
     #[test]
     fn validates_conventional_commits_and_bypasses_merge() {
-        assert!(validate_conventional_commit("feat(auth): add oauth2 login").is_empty());
-        assert!(validate_conventional_commit("Merge branch 'main' into dev").is_empty());
-        assert!(!validate_conventional_commit("").is_empty());
-        assert!(!validate_conventional_commit("随手提交一下").is_empty());
-        assert!(!validate_conventional_commit("wip: 临时保存").is_empty());
-        assert!(!validate_conventional_commit("feat: 标题\n紧贴的第二行").is_empty());
+        assert!(validate_conventional_commit("feat(auth): add oauth2 login", UiLocale::En).is_empty());
+        assert!(validate_conventional_commit("Merge branch 'main' into dev", UiLocale::En).is_empty());
+        assert!(!validate_conventional_commit("", UiLocale::En).is_empty());
+        assert!(!validate_conventional_commit("随手提交一下", UiLocale::ZhCn).is_empty());
+        assert!(!validate_conventional_commit("wip: 临时保存", UiLocale::ZhCn).is_empty());
+        assert!(!validate_conventional_commit("feat: 标题\n紧贴的第二行", UiLocale::ZhCn).is_empty());
     }
 }

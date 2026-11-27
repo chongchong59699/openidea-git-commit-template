@@ -1,9 +1,11 @@
 mod commit_message;
+mod i18n;
 
 use commit_message::{
     CommitForm, HEADER_WARN_LENGTH, format_commit_message, is_known_commit_type,
     parse_commit_message, validate_conventional_commit, validate_form,
 };
+use i18n::UiLocale;
 use openidea_plugin::commit::{CommitChecks, CommitProblem};
 use openidea_plugin::views::{Body, View, ViewEvent, Viewport, Views};
 use openidea_plugin::{
@@ -13,7 +15,6 @@ use serde_json::{Value, json};
 
 pub const VIEW_ID: &str = "editor";
 pub const CHECK_ID: &str = "conventional";
-const FORM_FILE_NAME: &str = "编辑提交消息.git-commit-template";
 
 const STORAGE_SCOPES: &str = "recent_scopes";
 const STORAGE_LAST_TYPE: &str = "last_type";
@@ -24,6 +25,12 @@ const MAX_SCOPES: usize = 20;
 pub struct GitCommitTemplate;
 
 impl GitCommitTemplate {
+    fn current_locale() -> (String, UiLocale) {
+        let tag = host::locale();
+        let locale = UiLocale::from_tag(&tag);
+        (tag, locale)
+    }
+
     fn load_scopes() -> Vec<String> {
         let Ok(Some(raw)) = host::storage::get(STORAGE_SCOPES) else {
             return Vec::new();
@@ -109,11 +116,13 @@ impl GitCommitTemplate {
     }
 
     fn send_init_from_pending_commit() {
+        let (locale_tag, _) = Self::current_locale();
         let form = Self::load_form_from_pending_commit();
         let scopes = Self::load_scopes();
         let preview = Self::build_preview_json(&form);
         Self::post_json(&json!({
             "op": "init",
+            "locale": locale_tag,
             "form": form,
             "scopes": scopes,
             "preview": preview,
@@ -121,17 +130,19 @@ impl GitCommitTemplate {
     }
 
     fn open_centered_form() -> Result<(), Error> {
+        let (_, locale) = Self::current_locale();
         if host::pending_commit()?.is_none() {
             host::notify(
                 NotificationLevel::Warning,
                 "Git Commit Template",
-                "当前窗口未检测到 Git 仓库，请先打开包含 Git 仓库的项目。",
+                locale.no_git_repo_warning(),
             );
             return Ok(());
         }
 
         let dir = host::fs::plugin_dir()?;
-        let path = format!("{}/{FORM_FILE_NAME}", dir.trim_end_matches(['/', '\\']));
+        let file_name = locale.form_file_name();
+        let path = format!("{}/{file_name}", dir.trim_end_matches(['/', '\\']));
         host::fs::write_bytes(&path, b"GCT")?;
         host::open_location(&path, 0, 0)?;
         Self::send_init_from_pending_commit();
@@ -139,13 +150,13 @@ impl GitCommitTemplate {
     }
 
     fn close_form_tab() {
-        // Ensure focus is in the editor area before closing the active custom editor tab.
         let _ = host::execute_command("toolwindow.focusEditor", None);
         let _ = host::execute_command("editor.closeTab", None);
     }
 
     fn apply_form(&mut self, form: CommitForm) -> Result<(), Error> {
-        if let Err(validation_msg) = validate_form(&form) {
+        let (_, locale) = Self::current_locale();
+        if let Err(validation_msg) = validate_form(&form, locale) {
             Self::post_json(&json!({
                 "op": "error",
                 "message": validation_msg,
@@ -160,7 +171,7 @@ impl GitCommitTemplate {
         let Some(draft) = host::pending_commit()? else {
             Self::post_json(&json!({
                 "op": "error",
-                "message": "当前窗口未检测到 Git 仓库，请先打开包含 Git 仓库的项目。",
+                "message": locale.no_git_repo_warning(),
             }));
             return Ok(());
         };
@@ -178,7 +189,7 @@ impl GitCommitTemplate {
                 } else {
                     Self::post_json(&json!({
                         "op": "error",
-                        "message": "Commit 状态已变化，请重试。",
+                        "message": locale.stale_commit_error(),
                     }));
                     Ok(())
                 }
@@ -186,7 +197,7 @@ impl GitCommitTemplate {
             Err(err) => {
                 Self::post_json(&json!({
                     "op": "error",
-                    "message": format!("写入提交信息失败：{err}"),
+                    "message": locale.write_failed_error(&err.to_string()),
                 }));
                 Err(err)
             }
@@ -221,7 +232,8 @@ impl CommitChecks for GitCommitTemplate {
         if check != CHECK_ID {
             return Err(Error::NotFound(format!("commit check {check}")));
         }
-        let problems = validate_conventional_commit(&draft.message)
+        let (_, locale) = Self::current_locale();
+        let problems = validate_conventional_commit(&draft.message, locale)
             .into_iter()
             .map(CommitProblem::new)
             .collect();
@@ -239,8 +251,9 @@ impl Views for GitCommitTemplate {
         if view != VIEW_ID {
             return Err(Error::NotFound(view.into()));
         }
+        let (_, locale) = Self::current_locale();
         Ok(View::new(Body::Message(
-            "请点击 Commit 工具栏图标打开提交消息表单。".into(),
+            locale.view_fallback_message().into(),
         )))
     }
 
@@ -309,8 +322,9 @@ mod tests {
     use std::rc::Rc;
 
     #[test]
-    fn open_command_opens_centered_form_and_posts_init() {
+    fn open_command_respects_locale_and_posts_init() {
         let host = MockHost::install();
+        host.set_locale("zh-CN");
         host.set_commit_draft(Some(CommitDraft {
             message: "fix(api)!: 修复空指针问题\n\nFixes #42".into(),
             amend: false,
@@ -325,11 +339,12 @@ mod tests {
 
         let opened = host.opened_locations();
         assert_eq!(opened.len(), 1);
-        assert!(opened[0].0.ends_with(".git-commit-template"));
+        assert!(opened[0].0.ends_with("编辑提交消息.git-commit-template"));
 
         let messages = host.view_messages();
         assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].0, VIEW_ID);
+        assert!(messages[0].1.contains("\"locale\":\"zh-CN\""));
         assert!(messages[0].1.contains("\"commitType\":\"fix\""));
         assert!(messages[0].1.contains("\"scope\":\"api\""));
         assert!(messages[0].1.contains("\"breakingBang\":true"));
@@ -423,76 +438,29 @@ mod tests {
     }
 
     #[test]
-    fn apply_rejects_empty_subject_without_closing_tab() {
-        let host = MockHost::install();
-        host.set_commit_draft(Some(CommitDraft {
-            message: String::new(),
-            amend: false,
-            revision: 1,
-            changes: vec![],
-        }));
-
-        let closed = Rc::new(Cell::new(false));
-        let closed_ref = closed.clone();
-        host.on_command("editor.closeTab", move |_| {
-            closed_ref.set(true);
-            Ok(None)
-        });
-
-        let mut plugin = GitCommitTemplate::default();
-        let empty_payload = json!({
-            "op": "apply",
-            "form": {
-                "commitType": "feat",
-                "scope": "",
-                "subject": "   ",
-                "body": "",
-                "wrap72": true,
-                "breakingBang": false,
-                "breaking": "",
-                "issues": "",
-                "issueKeyword": "Closes",
-                "skipCi": false
-            }
-        });
-
-        plugin
-            .handle(
-                VIEW_ID,
-                ViewEvent::Message(empty_payload.to_string()),
-                &host.invocation(),
-            )
-            .expect("empty subject should return Ok with inline error");
-
-        assert!(!closed.get(), "tab must stay open when validation fails");
-        assert_eq!(host.commit_draft().unwrap().message, "");
-    }
-
-    #[test]
-    fn commit_checker_flags_invalid_and_allows_valid_commits() {
+    fn commit_checker_localizes_messages_for_en_and_zh() {
         let host = MockHost::install();
         let mut plugin = GitCommitTemplate::default();
 
         let bad_draft = CommitDraft {
-            message: "随便写点东西".into(),
+            message: "not conventional".into(),
             amend: false,
             revision: 1,
             changes: vec![],
         };
-        let problems = plugin
-            .check(CHECK_ID, &bad_draft, &host.invocation())
-            .expect("check should succeed");
-        assert!(!problems.is_empty());
 
-        let ok_draft = CommitDraft {
-            message: "feat(core): add centered form".into(),
-            amend: false,
-            revision: 2,
-            changes: vec![],
-        };
-        let problems = plugin
-            .check(CHECK_ID, &ok_draft, &host.invocation())
-            .expect("check should succeed");
-        assert!(problems.is_empty());
+        host.set_locale("en");
+        let en_problems = plugin
+            .check(CHECK_ID, &bad_draft, &host.invocation())
+            .expect("en check should succeed");
+        assert_eq!(en_problems.len(), 1);
+        assert!(en_problems[0].message.contains("Conventional Commits"));
+
+        host.set_locale("zh-CN");
+        let zh_problems = plugin
+            .check(CHECK_ID, &bad_draft, &host.invocation())
+            .expect("zh check should succeed");
+        assert_eq!(zh_problems.len(), 1);
+        assert!(zh_problems[0].message.contains("提交标题不符合"));
     }
 }

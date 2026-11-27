@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>编辑提交消息</title>
+<title>Edit Commit Message</title>
 <style>
   * {
     box-sizing: border-box;
@@ -13,9 +13,9 @@
     margin: 0;
     padding: 0;
     height: 100%;
-    background: var(--openidea-bg-canvas, rgba(0, 0, 0, 0.18));
+    background: var(--openidea-bg-canvas, #16171a);
     color: var(--openidea-fg, #bcbec4);
-    font-family: var(--openidea-font-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif);
+    font-family: var(--openidea-font-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif);
     font-size: var(--openidea-font-size, 13px);
     line-height: 1.45;
   }
@@ -33,12 +33,12 @@
   .dialog-card {
     display: flex;
     flex-direction: column;
-    width: min(740px, 100%);
+    width: min(760px, 100%);
     max-height: calc(100vh - 32px);
     background: var(--openidea-bg, #1e1f22);
     border: 1px solid var(--openidea-border, #3f4147);
     border-radius: 8px;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.36);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.38);
     overflow: hidden;
   }
 
@@ -93,7 +93,7 @@
 
   .grid {
     display: grid;
-    grid-template-columns: 78px minmax(0, 1fr);
+    grid-template-columns: minmax(84px, max-content) minmax(0, 1fr);
     column-gap: 14px;
     row-gap: 11px;
     align-items: start;
@@ -119,7 +119,7 @@
   .radio-list {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
   }
 
   .radio-item {
@@ -189,11 +189,11 @@
 
   textarea {
     resize: vertical;
-    min-height: 64px;
+    min-height: 60px;
   }
 
   .textarea-compact {
-    min-height: 48px;
+    min-height: 46px;
   }
 
   .combo {
@@ -398,7 +398,7 @@
   }
 
   .btn {
-    min-width: 72px;
+    min-width: 74px;
     height: 29px;
     padding: 0 14px;
     border-radius: 4px;
@@ -446,26 +446,26 @@
 <div class="backdrop">
   <div class="dialog-card" role="dialog" aria-labelledby="dialogTitle">
     <div class="dialog-header">
-      <span class="dialog-title" id="dialogTitle">编辑提交消息</span>
+      <span class="dialog-title" id="dialogTitle">Edit Commit Message</span>
       <div class="header-actions">
-        <button type="button" class="icon-btn" id="headerReloadBtn" title="重新读取当前提交框内容" aria-label="重新读取">
+        <button type="button" class="icon-btn" id="headerReloadBtn" title="Reload from Commit box" aria-label="Reload">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
             <path d="M13.5 8A5.5 5.5 0 1 1 11.9 4.1M13.5 2.5V5.5H10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <button type="button" class="icon-btn" id="closeIconBtn" title="取消并关闭 (Esc)" aria-label="关闭">×</button>
+        <button type="button" class="icon-btn" id="closeIconBtn" title="Cancel and close (Esc)" aria-label="Close">×</button>
       </div>
     </div>
 
     <div class="form-scroll">
       <div class="grid">
-        <div class="row-label radio-label">提交类型</div>
+        <div class="row-label radio-label" id="lblType">Commit Type</div>
         <div class="radio-list" id="typeList"></div>
 
-        <label class="row-label" for="scopeInput">变更范围</label>
+        <label class="row-label" for="scopeInput" id="lblScope">Scope</label>
         <div class="combo" id="scopeCombo">
-          <input id="scopeInput" type="text" placeholder="可选，如 auth、api、workflow" autocomplete="off" />
-          <button type="button" class="combo-btn" id="scopeToggle" title="选择常用变更范围" aria-label="展开变更范围历史">
+          <input id="scopeInput" type="text" placeholder="Optional, e.g. auth, api, workflow" autocomplete="off" />
+          <button type="button" class="combo-btn" id="scopeToggle" title="Recent scopes" aria-label="Recent scopes">
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
               <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -473,56 +473,56 @@
           <div class="combo-menu" id="scopeMenu"></div>
         </div>
 
-        <label class="row-label" for="subjectInput">简短说明<span class="req-dot">*</span></label>
+        <label class="row-label" for="subjectInput"><span id="lblSubject">Subject</span><span class="req-dot">*</span></label>
         <div>
-          <input id="subjectInput" type="text" placeholder="必填：一句话概括本次变更" autocomplete="off" />
+          <input id="subjectInput" type="text" placeholder="Required: short imperative summary of the change" autocomplete="off" />
           <div class="field-hint">
-            <span>按 Ctrl+Enter 确定填入 · 按 Esc 取消关闭</span>
-            <span id="headerCount">0 字符</span>
+            <span id="hintShortcut">Press Ctrl+Enter to apply · Esc to cancel</span>
+            <span id="headerCount">0 chars</span>
           </div>
         </div>
 
-        <label class="row-label" for="bodyInput">详细说明</label>
-        <textarea id="bodyInput" placeholder="可选：详细描述改动背景、原因或实现要点"></textarea>
+        <label class="row-label" for="bodyInput" id="lblBody">Body</label>
+        <textarea id="bodyInput" placeholder="Optional: motivation, context, or implementation details"></textarea>
 
         <div></div>
         <label class="check-row">
           <input id="wrap72Input" type="checkbox" checked />
-          <span>超过 72 字符换行?</span>
+          <span id="lblWrap72">Wrap lines at 72 characters?</span>
         </label>
 
-        <label class="row-label" for="breakingInput">重大变化</label>
+        <label class="row-label" for="breakingInput" id="lblBreaking">Breaking</label>
         <div>
-          <textarea id="breakingInput" class="textarea-compact" placeholder="可选：描述不兼容变更（自动添加 BREAKING CHANGE: 前缀）"></textarea>
+          <textarea id="breakingInput" class="textarea-compact" placeholder="Optional: describe breaking changes (auto-prefixed with BREAKING CHANGE:)"></textarea>
           <div class="sub-check">
             <label class="check-row">
               <input id="breakingBangInput" type="checkbox" />
-              <span>标题附带 <code>!</code> 破坏性标记（如 <code>feat!:</code>）</span>
+              <span id="lblBreakingBang">Add <code>!</code> marker to header (e.g. <code>feat!:</code>)</span>
             </label>
           </div>
         </div>
 
-        <label class="row-label" for="issuesInput">关闭 issues</label>
+        <label class="row-label" for="issuesInput" id="lblIssues">Close Issues</label>
         <div class="issues-row">
-          <select id="issueKeywordSelect" aria-label="Issue 关键字">
+          <select id="issueKeywordSelect" aria-label="Issue keyword">
             <option value="Closes">Closes</option>
             <option value="Fixes">Fixes</option>
             <option value="Resolves">Resolves</option>
           </select>
-          <input id="issuesInput" type="text" placeholder="可选：如 #123, #456（自动添加前缀）" autocomplete="off" />
+          <input id="issuesInput" type="text" placeholder="Optional: e.g. #123, #456" autocomplete="off" />
         </div>
 
         <div></div>
         <label class="check-row">
           <input id="skipCiInput" type="checkbox" />
-          <span>跳过 CI 流程?</span>
+          <span id="lblSkipCi">Skip CI pipeline?</span>
         </label>
       </div>
 
       <div class="preview-box">
         <div class="preview-header">
-          <span>提交信息预览</span>
-          <span id="previewMeta">1 行</span>
+          <span id="lblPreview">Commit Message Preview</span>
+          <span id="previewMeta">1 line</span>
         </div>
         <pre class="preview-content" id="previewText"></pre>
       </div>
@@ -532,12 +532,12 @@
 
     <div class="footer">
       <div class="footer-left">
-        <button type="button" class="btn btn-ghost" id="reloadBtn" title="从当前 Commit 输入框重新读取">读取当前</button>
-        <button type="button" class="btn btn-ghost" id="resetBtn" title="清空表单">重置</button>
+        <button type="button" class="btn btn-ghost" id="reloadBtn">Reload</button>
+        <button type="button" class="btn btn-ghost" id="resetBtn">Reset</button>
       </div>
       <div class="footer-right">
-        <button type="button" class="btn btn-primary" id="okBtn">好的</button>
-        <button type="button" class="btn" id="cancelBtn">取消</button>
+        <button type="button" class="btn btn-primary" id="okBtn">OK</button>
+        <button type="button" class="btn" id="cancelBtn">Cancel</button>
       </div>
     </div>
   </div>
@@ -545,19 +545,574 @@
 
 <script>
 (function () {
-  const TYPES = [
-    { id: "feat", title: "新功能、新特性", desc: "一个新功能" },
-    { id: "fix", title: "修复 Bug", desc: "错误修复" },
-    { id: "docs", title: "编辑文档", desc: "仅文档更改" },
-    { id: "style", title: "代码格式修改", desc: "不影响代码含义的更改（例如：空格、格式、缺少分号）" },
-    { id: "refactor", title: "代码重构", desc: "既不修复错误也不添加功能的代码更改" },
-    { id: "perf", title: "代码优化", desc: "提高性能的代码更改" },
-    { id: "test", title: "测试用例新增/修改", desc: "添加缺失的测试或纠正现有测试" },
-    { id: "build", title: "修改项目构建/依赖", desc: "影响构建系统或外部依赖项的更改（例如：gulp、broccoli、npm）" },
-    { id: "ci", title: "修改持续集成配置", desc: "对 CI 配置文件和脚本的更改（例如：Travis、Circle、BrowserStack、SauceLabs）" },
-    { id: "chore", title: "其他修改", desc: "其他不修改 src 或测试文件的更改" },
-    { id: "revert", title: "恢复上一次提交", desc: "恢复之前的提交" }
-  ];
+  const TYPE_IDS = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore", "revert"];
+
+  const I18N = {
+    "en": {
+      htmlLang: "en",
+      dialogTitle: "Edit Commit Message",
+      lblType: "Commit Type",
+      lblScope: "Scope",
+      lblSubject: "Subject",
+      lblBody: "Body",
+      lblWrap72: "Wrap lines at 72 characters?",
+      lblBreaking: "Breaking",
+      lblBreakingBang: "Add <code>!</code> marker to header (e.g. <code>feat!:</code>)",
+      lblIssues: "Close Issues",
+      lblSkipCi: "Skip CI pipeline?",
+      lblPreview: "Commit Message Preview",
+      phScope: "Optional, e.g. auth, api, workflow",
+      phSubject: "Required: short imperative summary of the change",
+      phBody: "Optional: motivation, context, or implementation details",
+      phBreaking: "Optional: describe incompatible changes (auto-adds BREAKING CHANGE:)",
+      phIssues: "Optional: e.g. #123, #456 (auto-adds keyword prefix)",
+      hintShortcut: "Press Ctrl+Enter to apply · Esc to cancel",
+      btnReload: "Reload",
+      btnReset: "Reset",
+      btnOk: "OK",
+      btnCancel: "Cancel",
+      tipReload: "Reload from current Commit input box",
+      tipReset: "Clear all form fields",
+      tipClose: "Cancel and close (Esc)",
+      tipScopeToggle: "Select from recent scopes",
+      tipRemoveScope: "Remove from history",
+      emptyScopes: "No recent scopes yet — type a scope and click OK to remember it",
+      errEmptySubject: "Please enter a short description (commit subject cannot be empty).",
+      errGeneric: "Operation failed. Make sure a Git repository is open.",
+      chars: (n) => `${n} chars`,
+      charsWarn: (n) => `${n} chars · keep ≤ 72`,
+      lines: (n) => n === 1 ? "1 line" : `${n} lines`,
+      types: {
+        feat: ["Features", "A new feature"],
+        fix: ["Bug Fixes", "A bug fix"],
+        docs: ["Documentation", "Documentation only changes"],
+        style: ["Styles", "Changes that do not affect code meaning (white-space, formatting, semicolons)"],
+        refactor: ["Code Refactoring", "A code change that neither fixes a bug nor adds a feature"],
+        perf: ["Performance", "A code change that improves performance"],
+        test: ["Tests", "Adding missing tests or correcting existing tests"],
+        build: ["Builds", "Changes that affect the build system or external dependencies"],
+        ci: ["Continuous Integration", "Changes to CI configuration files and scripts"],
+        chore: ["Chores", "Other changes that don't modify src or test files"],
+        revert: ["Reverts", "Reverts a previous commit"]
+      }
+    },
+    "zh-CN": {
+      htmlLang: "zh-CN",
+      dialogTitle: "编辑提交消息",
+      lblType: "提交类型",
+      lblScope: "变更范围",
+      lblSubject: "简短说明",
+      lblBody: "详细说明",
+      lblWrap72: "超过 72 字符换行?",
+      lblBreaking: "重大变化",
+      lblBreakingBang: "标题附带 <code>!</code> 破坏性标记（如 <code>feat!:</code>）",
+      lblIssues: "关闭 issues",
+      lblSkipCi: "跳过 CI 流程?",
+      lblPreview: "提交信息预览",
+      phScope: "可选，如 auth、api、workflow",
+      phSubject: "必填：一句话概括本次变更",
+      phBody: "可选：详细描述改动背景、原因或实现要点",
+      phBreaking: "可选：描述不兼容变更（自动添加 BREAKING CHANGE: 前缀）",
+      phIssues: "可选：如 #123, #456（自动添加前缀）",
+      hintShortcut: "按 Ctrl+Enter 确定填入 · 按 Esc 取消关闭",
+      btnReload: "读取当前",
+      btnReset: "重置",
+      btnOk: "好的",
+      btnCancel: "取消",
+      tipReload: "从当前 Commit 输入框重新读取",
+      tipReset: "清空表单",
+      tipClose: "取消并关闭 (Esc)",
+      tipScopeToggle: "选择常用变更范围",
+      tipRemoveScope: "移除此记录",
+      emptyScopes: "暂无常用变更范围，直接输入即可自动记忆",
+      errEmptySubject: "请填写简短说明（提交标题不能为空）。",
+      errGeneric: "操作失败，请确认当前项目已打开 Git 仓库。",
+      chars: (n) => `${n} 字符`,
+      charsWarn: (n) => `${n} 字符 · 建议精简至 72 内`,
+      lines: (n) => `${n} 行`,
+      types: {
+        feat: ["新功能、新特性", "一个新功能"],
+        fix: ["修复 Bug", "错误修复"],
+        docs: ["编辑文档", "仅文档更改"],
+        style: ["代码格式修改", "不影响代码含义的更改（例如：空格、格式、缺少分号）"],
+        refactor: ["代码重构", "既不修复错误也不添加功能的代码更改"],
+        perf: ["代码优化", "提高性能的代码更改"],
+        test: ["测试用例新增/修改", "添加缺失的测试或纠正现有测试"],
+        build: ["修改项目构建/依赖", "影响构建系统或外部依赖项的更改（例如：gulp、broccoli、npm）"],
+        ci: ["修改持续集成配置", "对 CI 配置文件和脚本的更改（例如：Travis、Circle、BrowserStack、SauceLabs）"],
+        chore: ["其他修改", "其他不修改 src 或测试文件的更改"],
+        revert: ["恢复上一次提交", "恢复之前的提交"]
+      }
+    },
+    "zh-TW": {
+      htmlLang: "zh-TW",
+      dialogTitle: "編輯提交訊息",
+      lblType: "提交類型",
+      lblScope: "變更範圍",
+      lblSubject: "簡短說明",
+      lblBody: "詳細說明",
+      lblWrap72: "超過 72 字元自動換行？",
+      lblBreaking: "重大變更",
+      lblBreakingBang: "標題附帶 <code>!</code> 破壞性標記（如 <code>feat!:</code>）",
+      lblIssues: "關閉 Issues",
+      lblSkipCi: "略過 CI 流程？",
+      lblPreview: "提交訊息預覽",
+      phScope: "選填，如 auth、api、workflow",
+      phSubject: "必填：一句話概括本次變更",
+      phBody: "選填：詳細描述改動背景、原因或實作重點",
+      phBreaking: "選填：描述不相容變更（自動加上 BREAKING CHANGE: 前綴）",
+      phIssues: "選填：如 #123, #456（自動加上前綴）",
+      hintShortcut: "按 Ctrl+Enter 確定填入 · 按 Esc 取消關閉",
+      btnReload: "讀取目前",
+      btnReset: "重設",
+      btnOk: "確定",
+      btnCancel: "取消",
+      tipReload: "從目前 Commit 輸入框重新讀取",
+      tipReset: "清空表單",
+      tipClose: "取消並關閉 (Esc)",
+      tipScopeToggle: "選擇常用變更範圍",
+      tipRemoveScope: "移除此記錄",
+      emptyScopes: "尚無常用變更範圍，直接輸入即可自動記憶",
+      errEmptySubject: "請填寫簡短說明（提交標題不能為空）。",
+      errGeneric: "操作失敗，請確認目前已開啟 Git 儲存庫。",
+      chars: (n) => `${n} 字元`,
+      charsWarn: (n) => `${n} 字元 · 建議精簡至 72 內`,
+      lines: (n) => `${n} 行`,
+      types: {
+        feat: ["新功能、新特性", "新增一項功能"],
+        fix: ["修復 Bug", "錯誤修復"],
+        docs: ["編輯文件", "僅文件內容變更"],
+        style: ["程式碼格式修改", "不影響程式語意的變更（例如：空格、縮排、分號）"],
+        refactor: ["程式碼重構", "既不修復錯誤也不新增功能的程式變更"],
+        perf: ["效能最佳化", "提升執行效能的程式變更"],
+        test: ["測試案例新增/修改", "補齊缺少的測試或修正既有測試"],
+        build: ["修改專案建置/相依套件", "影響建置系統或外部相依套件的變更"],
+        ci: ["修改持續整合設定", "對 CI 設定檔與腳本的變更"],
+        chore: ["其他修改", "其他不修改 src 或測試檔案的變更"],
+        revert: ["還原上一次提交", "還原之前的提交"]
+      }
+    },
+    "ja": {
+      htmlLang: "ja",
+      dialogTitle: "コミットメッセージの編集",
+      lblType: "コミット種別",
+      lblScope: "スコープ",
+      lblSubject: "件名（要約）",
+      lblBody: "詳細説明",
+      lblWrap72: "72文字で自動折り返し",
+      lblBreaking: "破壊的変更",
+      lblBreakingBang: "件名に <code>!</code> を付与（例: <code>feat!:</code>）",
+      lblIssues: "Issue を閉じる",
+      lblSkipCi: "CI パイプラインをスキップ",
+      lblPreview: "コミットメッセージのプレビュー",
+      phScope: "任意（例: auth, api, workflow）",
+      phSubject: "必須: 変更内容を1行で簡潔に入力",
+      phBody: "任意: 変更の背景・理由・実装のポイントを記述",
+      phBreaking: "任意: 非互換な変更内容を記述（BREAKING CHANGE: を自動付与）",
+      phIssues: "任意（例: #123, #456）",
+      hintShortcut: "Ctrl+Enter で反映 · Esc でキャンセル",
+      btnReload: "再読込",
+      btnReset: "リセット",
+      btnOk: "OK",
+      btnCancel: "キャンセル",
+      tipReload: "現在のコミット入力欄から再読込",
+      tipReset: "フォームをクリア",
+      tipClose: "キャンセルして閉じる (Esc)",
+      tipScopeToggle: "よく使うスコープを選択",
+      tipRemoveScope: "履歴から削除",
+      emptyScopes: "履歴はまだありません。入力して確定すると自動保存されます",
+      errEmptySubject: "件名（短い説明）を入力してください。",
+      errGeneric: "処理に失敗しました。Git リポジトリが開かれているか確認してください。",
+      chars: (n) => `${n} 文字`,
+      charsWarn: (n) => `${n} 文字 · 72文字以内を推奨`,
+      lines: (n) => `${n} 行`,
+      types: {
+        feat: ["新機能", "新しい機能の追加"],
+        fix: ["バグ修正", "不具合の修正"],
+        docs: ["ドキュメント", "ドキュメントのみの変更"],
+        style: ["コード整形", "動作に影響しない変更（空白、フォーマット、セミコロン等）"],
+        refactor: ["リファクタリング", "機能追加やバグ修正を含まないコード改善"],
+        perf: ["パフォーマンス改善", "処理速度や効率を向上させる変更"],
+        test: ["テスト", "テストの追加・既存テストの修正"],
+        build: ["ビルド・依存関係", "ビルドシステムや外部依存パッケージの変更"],
+        ci: ["CI 設定", "CI 設定ファイルやスクリプトの変更"],
+        chore: ["その他", "src やテストを変更しない雑務・設定変更"],
+        revert: ["リバート", "以前のコミットを取り消す"]
+      }
+    },
+    "ko": {
+      htmlLang: "ko",
+      dialogTitle: "커밋 메시지 편집",
+      lblType: "커밋 유형",
+      lblScope: "변경 범위",
+      lblSubject: "짧은 설명",
+      lblBody: "상세 설명",
+      lblWrap72: "72자 초과 시 자동 줄바꿈?",
+      lblBreaking: "주요 변경",
+      lblBreakingBang: "제목에 <code>!</code> 표시 추가 (예: <code>feat!:</code>)",
+      lblIssues: "이슈 닫기",
+      lblSkipCi: "CI 파이프라인 건너뛰기?",
+      lblPreview: "커밋 메시지 미리보기",
+      phScope: "선택 사항 (예: auth, api, workflow)",
+      phSubject: "필수: 변경 사항을 한 줄로 요약",
+      phBody: "선택 사항: 변경 배경, 이유 및 구현 세부 정보",
+      phBreaking: "선택 사항: 호환성 깨짐 설명 (BREAKING CHANGE: 자동 추가)",
+      phIssues: "선택 사항 (예: #123, #456)",
+      hintShortcut: "Ctrl+Enter 적용 · Esc 취소",
+      btnReload: "현재 값 불러오기",
+      btnReset: "초기화",
+      btnOk: "확인",
+      btnCancel: "취소",
+      tipReload: "현재 커밋 입력창에서 다시 읽기",
+      tipReset: "양식 비우기",
+      tipClose: "취소 및 닫기 (Esc)",
+      tipScopeToggle: "자주 쓰는 범위 선택",
+      tipRemoveScope: "기록 삭제",
+      emptyScopes: "저장된 범위가 없습니다. 입력 후 확인하면 자동 저장됩니다",
+      errEmptySubject: "짧은 설명(커밋 제목)을 입력해 주세요.",
+      errGeneric: "작업에 실패했습니다. Git 저장소가 열려 있는지 확인하세요.",
+      chars: (n) => `${n}자`,
+      charsWarn: (n) => `${n}자 · 72자 이하 권장`,
+      lines: (n) => `${n}줄`,
+      types: {
+        feat: ["새로운 기능", "새 기능 추가"],
+        fix: ["버그 수정", "오류 수정"],
+        docs: ["문서 수정", "문서만 변경"],
+        style: ["코드 스타일", "코드 의미에 영향을 주지 않는 변경 (공백, 포맷 등)"],
+        refactor: ["리팩터링", "버그 수정이나 기능 추가가 아닌 코드 구조 개선"],
+        perf: ["성능 개선", "성능을 향상시키는 코드 변경"],
+        test: ["테스트", "누락된 테스트 추가 또는 기존 테스트 수정"],
+        build: ["빌드/의존성", "빌드 시스템 또는 외부 의존성 변경"],
+        ci: ["CI 설정", "CI 구성 파일 및 스크립트 변경"],
+        chore: ["기타 작업", "src 또는 테스트 파일을 수정하지 않는 기타 변경"],
+        revert: ["되돌리기", "이전 커밋 되돌리기"]
+      }
+    },
+    "fr": {
+      htmlLang: "fr",
+      dialogTitle: "Modifier le message de commit",
+      lblType: "Type",
+      lblScope: "Portée",
+      lblSubject: "Sujet",
+      lblBody: "Description",
+      lblWrap72: "Retour à la ligne à 72 caractères ?",
+      lblBreaking: "Rupture",
+      lblBreakingBang: "Ajouter <code>!</code> à l'en-tête (ex. <code>feat!:</code>)",
+      lblIssues: "Tickets liés",
+      lblSkipCi: "Ignorer le pipeline CI ?",
+      lblPreview: "Aperçu du message de commit",
+      phScope: "Optionnel, ex. auth, api, workflow",
+      phSubject: "Obligatoire : résumé concis du changement",
+      phBody: "Optionnel : contexte, motivation ou détails d'implémentation",
+      phBreaking: "Optionnel : changements incompatibles (préfixe BREAKING CHANGE: auto)",
+      phIssues: "Optionnel : ex. #123, #456",
+      hintShortcut: "Ctrl+Entrée pour valider · Échap pour annuler",
+      btnReload: "Recharger",
+      btnReset: "Réinitialiser",
+      btnOk: "OK",
+      btnCancel: "Annuler",
+      tipReload: "Recharger depuis le champ de commit actuel",
+      tipReset: "Effacer le formulaire",
+      tipClose: "Annuler et fermer (Échap)",
+      tipScopeToggle: "Portées récentes",
+      tipRemoveScope: "Supprimer",
+      emptyScopes: "Aucune portée récente pour le moment",
+      errEmptySubject: "Veuillez saisir une description courte (le sujet ne peut pas être vide).",
+      errGeneric: "Échec de l'opération. Vérifiez qu'un dépôt Git est ouvert.",
+      chars: (n) => `${n} car.`,
+      charsWarn: (n) => `${n} car. · ≤ 72 conseillé`,
+      lines: (n) => n === 1 ? "1 ligne" : `${n} lignes`,
+      types: {
+        feat: ["Fonctionnalité", "Nouvelle fonctionnalité"],
+        fix: ["Correction", "Correction de bug"],
+        docs: ["Documentation", "Modifications de documentation uniquement"],
+        style: ["Style", "Formatage sans changement fonctionnel (espaces, points-virgules)"],
+        refactor: ["Refactorisation", "Modification du code sans bug corrigé ni fonctionnalité ajoutée"],
+        perf: ["Performance", "Amélioration des performances"],
+        test: ["Tests", "Ajout ou correction de tests"],
+        build: ["Build", "Système de build ou dépendances externes"],
+        ci: ["Intégration continue", "Fichiers et scripts de configuration CI"],
+        chore: ["Maintenance", "Autres changements hors src et tests"],
+        revert: ["Annulation", "Annule un commit précédent"]
+      }
+    },
+    "es": {
+      htmlLang: "es",
+      dialogTitle: "Editar mensaje de commit",
+      lblType: "Tipo",
+      lblScope: "Alcance",
+      lblSubject: "Asunto",
+      lblBody: "Cuerpo",
+      lblWrap72: "¿Ajustar líneas a 72 caracteres?",
+      lblBreaking: "Incompatible",
+      lblBreakingBang: "Añadir <code>!</code> al encabezado (ej. <code>feat!:</code>)",
+      lblIssues: "Cerrar issues",
+      lblSkipCi: "¿Omitir pipeline CI?",
+      lblPreview: "Vista previa del commit",
+      phScope: "Opcional, ej. auth, api, workflow",
+      phSubject: "Obligatorio: resumen breve del cambio",
+      phBody: "Opcional: contexto, motivo o detalles de implementación",
+      phBreaking: "Opcional: cambios incompatibles (añade BREAKING CHANGE:)",
+      phIssues: "Opcional: ej. #123, #456",
+      hintShortcut: "Ctrl+Enter para aplicar · Esc para cancelar",
+      btnReload: "Recargar",
+      btnReset: "Restablecer",
+      btnOk: "Aceptar",
+      btnCancel: "Cancelar",
+      tipReload: "Volver a leer el mensaje actual",
+      tipReset: "Limpiar formulario",
+      tipClose: "Cancelar y cerrar (Esc)",
+      tipScopeToggle: "Alcances recientes",
+      tipRemoveScope: "Eliminar",
+      emptyScopes: "Aún no hay alcances recientes",
+      errEmptySubject: "Introduce una descripción breve (el asunto no puede estar vacío).",
+      errGeneric: "Error en la operación. Asegúrate de abrir un repositorio Git.",
+      chars: (n) => `${n} car.`,
+      charsWarn: (n) => `${n} car. · se recomienda ≤ 72`,
+      lines: (n) => n === 1 ? "1 línea" : `${n} líneas`,
+      types: {
+        feat: ["Funcionalidad", "Una nueva característica"],
+        fix: ["Corrección", "Corrección de un error"],
+        docs: ["Documentación", "Cambios solo en documentación"],
+        style: ["Estilo", "Formato que no afecta la lógica del código"],
+        refactor: ["Refactorización", "Cambio de código sin nuevas funciones ni correcciones"],
+        perf: ["Rendimiento", "Mejora del rendimiento"],
+        test: ["Pruebas", "Añadir o corregir pruebas"],
+        build: ["Construcción", "Sistema de compilación o dependencias externas"],
+        ci: ["CI", "Configuración y scripts de integración continua"],
+        chore: ["Tareas", "Otros cambios fuera de src o pruebas"],
+        revert: ["Revertir", "Revierte un commit anterior"]
+      }
+    },
+    "pt": {
+      htmlLang: "pt-BR",
+      dialogTitle: "Editar mensagem de commit",
+      lblType: "Tipo",
+      lblScope: "Escopo",
+      lblSubject: "Título",
+      lblBody: "Descrição",
+      lblWrap72: "Quebrar linha em 72 caracteres?",
+      lblBreaking: "Quebra",
+      lblBreakingBang: "Adicionar <code>!</code> ao cabeçalho (ex.: <code>feat!:</code>)",
+      lblIssues: "Fechar issues",
+      lblSkipCi: "Pular pipeline de CI?",
+      lblPreview: "Pré-visualização do commit",
+      phScope: "Opcional, ex.: auth, api, workflow",
+      phSubject: "Obrigatório: resumo curto da alteração",
+      phBody: "Opcional: contexto, motivação ou detalhes da implementação",
+      phBreaking: "Opcional: mudanças incompatíveis (adiciona BREAKING CHANGE:)",
+      phIssues: "Opcional: ex.: #123, #456",
+      hintShortcut: "Ctrl+Enter para aplicar · Esc para cancelar",
+      btnReload: "Recarregar",
+      btnReset: "Limpar",
+      btnOk: "OK",
+      btnCancel: "Cancelar",
+      tipReload: "Recarregar da caixa de commit atual",
+      tipReset: "Limpar formulário",
+      tipClose: "Cancelar e fechar (Esc)",
+      tipScopeToggle: "Escopos recentes",
+      tipRemoveScope: "Remover",
+      emptyScopes: "Nenhum escopo recente salvo",
+      errEmptySubject: "Informe uma descrição curta (o título não pode ficar vazio).",
+      errGeneric: "Falha na operação. Verifique se há um repositório Git aberto.",
+      chars: (n) => `${n} caract.`,
+      charsWarn: (n) => `${n} caract. · ideal ≤ 72`,
+      lines: (n) => n === 1 ? "1 linha" : `${n} linhas`,
+      types: {
+        feat: ["Funcionalidade", "Um novo recurso"],
+        fix: ["Correção", "Correção de bug"],
+        docs: ["Documentação", "Alterações apenas na documentação"],
+        style: ["Estilo", "Formatação sem alterar o significado do código"],
+        refactor: ["Refatoração", "Alteração de código sem corrigir bug nem adicionar recurso"],
+        perf: ["Desempenho", "Melhoria de performance"],
+        test: ["Testes", "Adição ou correção de testes"],
+        build: ["Build", "Sistema de build ou dependências externas"],
+        ci: ["CI", "Arquivos e scripts de configuração de CI"],
+        chore: ["Manutenção", "Outras alterações fora de src ou testes"],
+        revert: ["Reverter", "Reverte um commit anterior"]
+      }
+    },
+    "pl": {
+      htmlLang: "pl",
+      dialogTitle: "Edytuj wiadomość commita",
+      lblType: "Typ",
+      lblScope: "Zakres",
+      lblSubject: "Temat",
+      lblBody: "Treść",
+      lblWrap72: "Zawijaj wiersze powyżej 72 znaków?",
+      lblBreaking: "Niezgodność",
+      lblBreakingBang: "Dodaj <code>!</code> w nagłówku (np. <code>feat!:</code>)",
+      lblIssues: "Zamknij zgłoszenia",
+      lblSkipCi: "Pominąć pipeline CI?",
+      lblPreview: "Podgląd wiadomości commita",
+      phScope: "Opcjonalnie, np. auth, api, workflow",
+      phSubject: "Wymagane: krótkie podsumowanie zmiany",
+      phBody: "Opcjonalnie: kontekst, powód lub szczegóły implementacji",
+      phBreaking: "Opcjonalnie: opis zmian niekompatybilnych (BREAKING CHANGE:)",
+      phIssues: "Opcjonalnie: np. #123, #456",
+      hintShortcut: "Ctrl+Enter zatwierdź · Esc anuluj",
+      btnReload: "Wczytaj",
+      btnReset: "Wyczyść",
+      btnOk: "OK",
+      btnCancel: "Anuluj",
+      tipReload: "Wczytaj ponownie z pola commita",
+      tipReset: "Wyczyść formularz",
+      tipClose: "Anuluj i zamknij (Esc)",
+      tipScopeToggle: "Ostatnie zakresy",
+      tipRemoveScope: "Usuń",
+      emptyScopes: "Brak zapisanych zakresów",
+      errEmptySubject: "Wprowadź krótki opis (temat commita nie może być pusty).",
+      errGeneric: "Operacja nie powiodła się. Upewnij się, że repozytorium Git jest otwarte.",
+      chars: (n) => `${n} zn.`,
+      charsWarn: (n) => `${n} zn. · zalecane ≤ 72`,
+      lines: (n) => `${n} linii`,
+      types: {
+        feat: ["Nowa funkcja", "Dodanie nowej funkcjonalności"],
+        fix: ["Naprawa błędu", "Poprawka błędu"],
+        docs: ["Dokumentacja", "Zmiany wyłącznie w dokumentacji"],
+        style: ["Styl kodu", "Formatowanie bez zmiany działania kodu"],
+        refactor: ["Refaktoryzacja", "Zmiana kodu bez naprawy błędu ani nowej funkcji"],
+        perf: ["Wydajność", "Zmiana poprawiająca wydajność"],
+        test: ["Testy", "Dodanie lub poprawienie testów"],
+        build: ["Budowanie", "Zmiany systemu budowania lub zależności"],
+        ci: ["CI", "Zmiany konfiguracji ciągłej integracji"],
+        chore: ["Inne", "Pozostałe zmiany poza src i testami"],
+        revert: ["Cofnięcie", "Wycofuje poprzedni commit"]
+      }
+    },
+    "tr": {
+      htmlLang: "tr",
+      dialogTitle: "Commit Mesajını Düzenle",
+      lblType: "Commit Türü",
+      lblScope: "Kapsam",
+      lblSubject: "Kısa Açıklama",
+      lblBody: "Detaylar",
+      lblWrap72: "72 karakterde satır kaydırılsın mı?",
+      lblBreaking: "Kırıcı Değişiklik",
+      lblBreakingBang: "Başlığa <code>!</code> işareti ekle (örn. <code>feat!:</code>)",
+      lblIssues: "Kapatılan Kayıtlar",
+      lblSkipCi: "CI süreci atlansın mı?",
+      lblPreview: "Commit Mesajı Önizlemesi",
+      phScope: "İsteğe bağlı, örn. auth, api, workflow",
+      phSubject: "Zorunlu: değişikliği tek cümleyle özetleyin",
+      phBody: "İsteğe bağlı: arka plan, neden veya uygulama detayları",
+      phBreaking: "İsteğe bağlı: uyumsuz değişiklikler (BREAKING CHANGE: eklenir)",
+      phIssues: "İsteğe bağlı: örn. #123, #456",
+      hintShortcut: "Uygulamak için Ctrl+Enter · İptal için Esc",
+      btnReload: "Yenile",
+      btnReset: "Sıfırla",
+      btnOk: "Tamam",
+      btnCancel: "İptal",
+      tipReload: "Mevcut Commit kutusundan yeniden oku",
+      tipReset: "Formu temizle",
+      tipClose: "İptal et ve kapat (Esc)",
+      tipScopeToggle: "Son kullanılan kapsamlar",
+      tipRemoveScope: "Sil",
+      emptyScopes: "Henüz kayıtlı kapsam yok",
+      errEmptySubject: "Lütfen kısa bir açıklama girin (commit başlığı boş olamaz).",
+      errGeneric: "İşlem başarısız. Bir Git deposunun açık olduğundan emin olun.",
+      chars: (n) => `${n} karakter`,
+      charsWarn: (n) => `${n} karakter · ≤ 72 önerilir`,
+      lines: (n) => `${n} satır`,
+      types: {
+        feat: ["Yeni Özellik", "Yeni bir özellik ekler"],
+        fix: ["Hata Düzeltme", "Bir hatayı düzeltir"],
+        docs: ["Dokümantasyon", "Yalnızca belge değişiklikleri"],
+        style: ["Kod Biçimi", "Kodun anlamını etkilemeyen biçimlendirme değişiklikleri"],
+        refactor: ["Yeniden Düzenleme", "Hata düzeltmeyen veya özellik eklemeyen kod değişikliği"],
+        perf: ["Performans", "Performansı artıran kod değişikliği"],
+        test: ["Testler", "Eksik testlerin eklenmesi veya düzeltilmesi"],
+        build: ["Derleme", "Derleme sistemi veya dış bağımlılık değişiklikleri"],
+        ci: ["Sürekli Entegrasyon", "CI yapılandırma dosya ve betik değişiklikleri"],
+        chore: ["Diğer", "src veya test dosyalarını değiştirmeyen diğer işler"],
+        revert: ["Geri Alma", "Önceki bir commit'i geri alır"]
+      }
+    },
+    "ru": {
+      htmlLang: "ru",
+      dialogTitle: "Изменить сообщение коммита",
+      lblType: "Тип коммита",
+      lblScope: "Область",
+      lblSubject: "Краткое описание",
+      lblBody: "Подробности",
+      lblWrap72: "Переносить строки длиннее 72 символов?",
+      lblBreaking: "Ломающие изменения",
+      lblBreakingBang: "Добавить <code>!</code> в заголовок (напр. <code>feat!:</code>)",
+      lblIssues: "Закрыть задачи",
+      lblSkipCi: "Пропустить CI?",
+      lblPreview: "Предпросмотр коммита",
+      phScope: "Необязательно, напр. auth, api, workflow",
+      phSubject: "Обязательно: краткая суть изменений в одну строку",
+      phBody: "Необязательно: контекст, причины и детали реализации",
+      phBreaking: "Необязательно: несовместимые изменения (добавит BREAKING CHANGE:)",
+      phIssues: "Необязательно: напр. #123, #456",
+      hintShortcut: "Ctrl+Enter применить · Esc отмена",
+      btnReload: "Перечитать",
+      btnReset: "Сбросить",
+      btnOk: "ОК",
+      btnCancel: "Отмена",
+      tipReload: "Перечитать из текущего поля коммита",
+      tipReset: "Очистить форму",
+      tipClose: "Отменить и закрыть (Esc)",
+      tipScopeToggle: "Недавние области",
+      tipRemoveScope: "Удалить",
+      emptyScopes: "Нет сохранённых областей",
+      errEmptySubject: "Введите краткое описание (заголовок коммита не может быть пустым).",
+      errGeneric: "Ошибка операции. Убедитесь, что открыт репозиторий Git.",
+      chars: (n) => `${n} симв.`,
+      charsWarn: (n) => `${n} симв. · рекомендуется ≤ 72`,
+      lines: (n) => `${n} стр.`,
+      types: {
+        feat: ["Новая функция", "Добавление новой функциональности"],
+        fix: ["Исправление", "Исправление ошибки"],
+        docs: ["Документация", "Изменения только в документации"],
+        style: ["Форматирование", "Правки стиля без изменения логики кода"],
+        refactor: ["Рефакторинг", "Улучшение кода без новых функций и исправлений"],
+        perf: ["Производительность", "Оптимизация производительности"],
+        test: ["Тесты", "Добавление или исправление тестов"],
+        build: ["Сборка", "Система сборки или внешние зависимости"],
+        ci: ["CI", "Конфигурация и скрипты непрерывной интеграции"],
+        chore: ["Прочее", "Прочие изменения вне src и тестов"],
+        revert: ["Откат", "Отмена предыдущего коммита"]
+      }
+    }
+  };
+
+  function resolveLocaleKey(tag) {
+    const raw = String(tag || "").trim().toLowerCase();
+    if (!raw) return "en";
+    if (raw.startsWith("zh-tw") || raw.startsWith("zh-hk") || raw.startsWith("zh-mo") || raw.includes("hant")) return "zh-TW";
+    if (raw.startsWith("zh")) return "zh-CN";
+    if (raw.startsWith("ja")) return "ja";
+    if (raw.startsWith("ko")) return "ko";
+    if (raw.startsWith("fr")) return "fr";
+    if (raw.startsWith("es")) return "es";
+    if (raw.startsWith("pt")) return "pt";
+    if (raw.startsWith("pl")) return "pl";
+    if (raw.startsWith("tr")) return "tr";
+    if (raw.startsWith("ru")) return "ru";
+    return "en";
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  let currentLocaleKey = resolveLocaleKey(params.get("lang") || navigator.language || "en");
+
+  function dict() {
+    return I18N[currentLocaleKey] || I18N["en"];
+  }
+
+  const dialogTitleEl = document.getElementById("dialogTitle");
+  const lblTypeEl = document.getElementById("lblType");
+  const lblScopeEl = document.getElementById("lblScope");
+  const lblSubjectEl = document.getElementById("lblSubject");
+  const lblBodyEl = document.getElementById("lblBody");
+  const lblWrap72El = document.getElementById("lblWrap72");
+  const lblBreakingEl = document.getElementById("lblBreaking");
+  const lblBreakingBangEl = document.getElementById("lblBreakingBang");
+  const lblIssuesEl = document.getElementById("lblIssues");
+  const lblSkipCiEl = document.getElementById("lblSkipCi");
+  const lblPreviewEl = document.getElementById("lblPreview");
+  const hintShortcutEl = document.getElementById("hintShortcut");
 
   const typeListEl = document.getElementById("typeList");
   const scopeInput = document.getElementById("scopeInput");
@@ -585,16 +1140,21 @@
   const hasBridge = Boolean(window.openidea && typeof window.openidea.postMessage === "function");
 
   let recentScopes = [];
+  let lastPreviewState = { message: "feat: ", headerLen: 6, headerWarn: false, lineCount: 1 };
 
-  function renderTypeRadios() {
+  function renderTypeRadios(selected) {
+    const d = dict();
+    const current = selected || getSelectedType();
     typeListEl.innerHTML = "";
-    for (const item of TYPES) {
+    for (const id of TYPE_IDS) {
+      const [title, desc] = d.types[id] || I18N["en"].types[id];
       const label = document.createElement("label");
       label.className = "radio-item";
       const radio = document.createElement("input");
       radio.type = "radio";
       radio.name = "commitType";
-      radio.value = item.id;
+      radio.value = id;
+      radio.checked = id === current;
       radio.addEventListener("change", () => {
         clearStatus();
         requestPreview();
@@ -603,15 +1163,15 @@
       const textWrap = document.createElement("span");
       const titleSpan = document.createElement("span");
       titleSpan.className = "radio-text";
-      titleSpan.textContent = item.title;
+      titleSpan.textContent = title;
 
       const codeSpan = document.createElement("span");
       codeSpan.className = "radio-code";
-      codeSpan.textContent = "(" + item.id + ")";
+      codeSpan.textContent = "(" + id + ")";
 
       const descSpan = document.createElement("span");
       descSpan.className = "radio-desc";
-      descSpan.textContent = " - " + item.desc;
+      descSpan.textContent = " - " + desc;
 
       textWrap.appendChild(titleSpan);
       textWrap.appendChild(codeSpan);
@@ -620,6 +1180,45 @@
       label.appendChild(textWrap);
       typeListEl.appendChild(label);
     }
+  }
+
+  function applyLocale(tag) {
+    currentLocaleKey = resolveLocaleKey(tag);
+    const d = dict();
+    document.documentElement.lang = d.htmlLang;
+    document.title = d.dialogTitle;
+    dialogTitleEl.textContent = d.dialogTitle;
+    lblTypeEl.textContent = d.lblType;
+    lblScopeEl.textContent = d.lblScope;
+    lblSubjectEl.textContent = d.lblSubject;
+    lblBodyEl.textContent = d.lblBody;
+    lblWrap72El.textContent = d.lblWrap72;
+    lblBreakingEl.textContent = d.lblBreaking;
+    lblBreakingBangEl.innerHTML = d.lblBreakingBang;
+    lblIssuesEl.textContent = d.lblIssues;
+    lblSkipCiEl.textContent = d.lblSkipCi;
+    lblPreviewEl.textContent = d.lblPreview;
+    hintShortcutEl.textContent = d.hintShortcut;
+
+    scopeInput.placeholder = d.phScope;
+    subjectInput.placeholder = d.phSubject;
+    bodyInput.placeholder = d.phBody;
+    breakingInput.placeholder = d.phBreaking;
+    issuesInput.placeholder = d.phIssues;
+
+    reloadBtn.textContent = d.btnReload;
+    reloadBtn.title = d.tipReload;
+    headerReloadBtn.title = d.tipReload;
+    resetBtn.textContent = d.btnReset;
+    resetBtn.title = d.tipReset;
+    okBtn.textContent = d.btnOk;
+    cancelBtn.textContent = d.btnCancel;
+    closeIconBtn.title = d.tipClose;
+    scopeToggle.title = d.tipScopeToggle;
+
+    renderTypeRadios(getSelectedType());
+    renderScopeMenu();
+    renderPreview(lastPreviewState);
   }
 
   function getSelectedType() {
@@ -676,6 +1275,8 @@
 
   function renderPreview(preview) {
     if (!preview || typeof preview !== "object") return;
+    lastPreviewState = preview;
+    const d = dict();
     const msg = preview.message || "";
     const headerLen = typeof preview.headerLen === "number"
       ? preview.headerLen
@@ -685,14 +1286,38 @@
       : msg.split("\n").length;
 
     previewText.textContent = msg;
-    previewMeta.textContent = lineCount + " 行";
+    previewMeta.textContent = d.lines(lineCount);
     if (preview.headerWarn || headerLen > 72) {
-      headerCount.textContent = headerLen + " 字符 · 建议精简至 72 内";
+      headerCount.textContent = d.charsWarn(headerLen);
       headerCount.className = "count-warn";
     } else {
-      headerCount.textContent = headerLen + " 字符";
+      headerCount.textContent = d.chars(headerLen);
       headerCount.className = "";
     }
+  }
+
+  function buildStandalonePreview(form) {
+    const bang = form.breakingBang ? "!" : "";
+    const s = form.scope.trim();
+    const header = (s ? `${form.commitType}(${s})${bang}: ` : `${form.commitType}${bang}: `) + form.subject.trim();
+    const sections = [header];
+    if (form.body.trim()) sections.push(form.body.trim());
+    if (form.breaking.trim()) {
+      const b = form.breaking.trim();
+      sections.push(b.startsWith("BREAKING CHANGE:") ? b : "BREAKING CHANGE: " + b);
+    }
+    if (form.issues.trim()) {
+      const items = form.issues.trim().split(/[,，\s]+/).filter(Boolean).map(x => /^\d+$/.test(x) ? "#" + x : x);
+      if (items.length) sections.push(`${form.issueKeyword} ${items.join(", ")}`);
+    }
+    if (form.skipCi) sections.push("[skip ci]");
+    const message = sections.join("\n\n");
+    return {
+      message,
+      headerLen: Array.from(header).length,
+      headerWarn: Array.from(header).length > 72,
+      lineCount: message.split("\n").length
+    };
   }
 
   function requestPreview() {
@@ -700,15 +1325,7 @@
     if (hasBridge) {
       send({ op: "preview", form });
     } else {
-      const bang = form.breakingBang ? "!" : "";
-      const s = form.scope.trim();
-      const header = (s ? `${form.commitType}(${s})${bang}: ` : `${form.commitType}${bang}: `) + form.subject.trim();
-      renderPreview({
-        message: header,
-        headerLen: Array.from(header).length,
-        headerWarn: Array.from(header).length > 72,
-        lineCount: 1
-      });
+      renderPreview(buildStandalonePreview(form));
     }
   }
 
@@ -723,11 +1340,12 @@
   }
 
   function renderScopeMenu() {
+    const d = dict();
     scopeMenu.innerHTML = "";
     if (!recentScopes || recentScopes.length === 0) {
       const empty = document.createElement("div");
       empty.className = "combo-empty";
-      empty.textContent = "暂无常用变更范围，直接输入即可自动记忆";
+      empty.textContent = d.emptyScopes;
       scopeMenu.appendChild(empty);
       return;
     }
@@ -740,7 +1358,7 @@
       del.type = "button";
       del.className = "combo-del";
       del.textContent = "×";
-      del.title = "移除此记录";
+      del.title = d.tipRemoveScope;
       del.addEventListener("click", (e) => {
         e.stopPropagation();
         send({ op: "remove-scope", scope: sc });
@@ -769,7 +1387,7 @@
     if (!form.subject.trim()) {
       subjectInput.classList.add("invalid");
       subjectInput.focus();
-      showError("请填写简短说明（提交标题不能为空）。");
+      showError(dict().errEmptySubject);
       return;
     }
     subjectInput.classList.remove("invalid");
@@ -856,10 +1474,64 @@
     }
   });
 
-  renderTypeRadios();
-  renderScopeMenu();
-  populateForm({});
-  requestPreview();
+  renderTypeRadios("feat");
+  applyLocale(currentLocaleKey);
+
+  // Standalone demo mode for documentation screenshots when opened outside OpenIDEA.
+  if (!hasBridge && params.get("demo") === "1") {
+    const demoSamples = {
+      "en": {
+        commitType: "feat",
+        scope: "auth",
+        subject: "support OAuth2 PKCE login flow",
+        body: "Add PKCE verifier generation and token exchange retry handling.",
+        issues: "#128",
+        issueKeyword: "Closes",
+        wrap72: true
+      },
+      "zh-CN": {
+        commitType: "feat",
+        scope: "auth",
+        subject: "支持 OAuth2 PKCE 授权登录流程",
+        body: "补充 PKCE 校验码生成与令牌刷新重试逻辑。",
+        issues: "#128",
+        issueKeyword: "Closes",
+        wrap72: true
+      },
+      "zh-TW": {
+        commitType: "feat",
+        scope: "auth",
+        subject: "支援 OAuth2 PKCE 授權登入流程",
+        body: "補齊 PKCE 驗證碼產生與權杖重新整理重試邏輯。",
+        issues: "#128",
+        issueKeyword: "Closes",
+        wrap72: true
+      },
+      "ja": {
+        commitType: "feat",
+        scope: "auth",
+        subject: "OAuth2 PKCE ログインフローに対応",
+        body: "PKCE 検証コードの生成とトークン更新時のリトライ処理を追加。",
+        issues: "#128",
+        issueKeyword: "Closes",
+        wrap72: true
+      },
+      "ko": {
+        commitType: "feat",
+        scope: "auth",
+        subject: "OAuth2 PKCE 로그인 흐름 지원",
+        body: "PKCE 검증 코드 생성 및 토큰 갱신 재시도 로직 추가.",
+        issues: "#128",
+        issueKeyword: "Closes",
+        wrap72: true
+      }
+    };
+    populateForm(demoSamples[currentLocaleKey] || demoSamples["en"]);
+    requestPreview();
+  } else {
+    populateForm({});
+    requestPreview();
+  }
 
   if (window.openidea && typeof window.openidea.onMessage === "function") {
     window.openidea.onMessage((raw) => {
@@ -872,6 +1544,9 @@
       if (!msg || typeof msg !== "object") return;
       if (msg.op === "init") {
         clearStatus();
+        if (msg.locale) {
+          applyLocale(msg.locale);
+        }
         if (Array.isArray(msg.scopes)) {
           recentScopes = msg.scopes;
           renderScopeMenu();
@@ -891,7 +1566,7 @@
         recentScopes = Array.isArray(msg.scopes) ? msg.scopes : [];
         renderScopeMenu();
       } else if (msg.op === "error") {
-        showError(msg.message || "操作失败，请确认当前项目已打开 Git 仓库。");
+        showError(msg.message || dict().errGeneric);
       }
     });
   }

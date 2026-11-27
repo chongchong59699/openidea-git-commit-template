@@ -1,10 +1,11 @@
-id = "local.git-commit-template"
+id = "chongchong59699.git-commit-template"
 name = "Git Commit Template"
-version = "1.2.0"
-description = "挂载在 Git 提交面板工具栏的提交信息模板插件，在主区域弹出完整可视化大表单，填充后自动关闭，并内置 Conventional Commits 提交前规范检查。"
-authors = ["Local Developer"]
+version = "1.3.0"
+description = "Visual Conventional Commits form for the Git Commit toolbar, featuring a centered auto-closing dialog card, scope history, 72-char wrapping, and before-commit checks."
+authors = ["chongchong59699"]
+homepage = "https://github.com/chongchong59699/openidea-git-commit-template"
 license = "MIT"
-change-notes = "1.2.0 — 改为在主区域居中打开完整卡片式大表单（经典单选列表布局），点击【好的】、【取消】或按 Esc 自动关闭表单页；保留常用范围记忆、72 字符自动换行、! / Fixes 解析修复与提交前检查。"
+change-notes = "1.3.0 — Full multi-language localization (11 languages), centered auto-closing commit template form, lossless ! / Fixes round-tripping, and Conventional Commits check."
 categories = ["vcs", "tools"]
 icon = "icon.svg"
 icon-dark = "icon_dark.svg"
@@ -17,7 +18,7 @@ required = ["vcs.read", "vcs.write", "storage", "ide.commands"]
 
 [[contributes.commands]]
 id = "open"
-title = "编辑提交消息 (Git Commit Template)"
+title = "Edit Commit Message (Git Commit Template)"
 category = "Git Commit Template"
 
 [[contributes.menus]]
@@ -30,7 +31,7 @@ command = "open"
 
 [[contributes.customEditors]]
 id = "editor"
-title = "编辑提交消息"
+title = "Edit Commit Message"
 patterns = ["*.git-commit-template"]
 priority = "default"
 layout = "tab"
@@ -39,7 +40,7 @@ binary = true
 
 [[contributes.commitChecks]]
 id = "conventional"
-title = "Conventional Commits 规范检查"
+title = "Conventional Commits Format"
 
 [[contributes.keymaps]]
 command = "open"
