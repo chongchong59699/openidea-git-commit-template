@@ -13,45 +13,89 @@
     margin: 0;
     padding: 0;
     height: 100%;
-    background: var(--openidea-bg, #1e1f22);
+    background: var(--openidea-bg-canvas, rgba(0, 0, 0, 0.18));
     color: var(--openidea-fg, #bcbec4);
     font-family: var(--openidea-font-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif);
     font-size: var(--openidea-font-size, 13px);
     line-height: 1.45;
   }
 
-  .app {
+  .backdrop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    height: 100%;
+    padding: 16px 20px;
+    overflow: hidden;
+  }
+
+  .dialog-card {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    min-height: 100vh;
+    width: min(740px, 100%);
+    max-height: calc(100vh - 32px);
+    background: var(--openidea-bg, #1e1f22);
+    border: 1px solid var(--openidea-border, #3f4147);
+    border-radius: 8px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.36);
+    overflow: hidden;
+  }
+
+  .dialog-header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--openidea-border, #393b40);
+    user-select: none;
+  }
+
+  .dialog-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--openidea-fg-strong, #dfe1e5);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .icon-btn {
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    color: var(--openidea-fg-muted, #9da0a8);
+    cursor: pointer;
+    padding: 0;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .icon-btn:hover {
+    background: var(--openidea-bg-hover, rgba(255, 255, 255, 0.08));
+    color: var(--openidea-fg-strong, #dfe1e5);
   }
 
   .form-scroll {
     flex: 1 1 auto;
     overflow-y: auto;
-    padding: 12px 14px 10px;
-  }
-
-  .mode-tip {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 6px 10px;
-    margin-bottom: 12px;
-    border-radius: 4px;
-    font-size: 12px;
-    color: var(--openidea-fg-muted, #9da0a8);
-    background: var(--openidea-bg-elevated, #25272a);
-    border: 1px solid var(--openidea-border, #393b40);
+    padding: 14px 20px 12px;
   }
 
   .grid {
     display: grid;
-    grid-template-columns: 72px minmax(0, 1fr);
-    column-gap: 10px;
-    row-gap: 10px;
+    grid-template-columns: 78px minmax(0, 1fr);
+    column-gap: 14px;
+    row-gap: 11px;
     align-items: start;
   }
 
@@ -62,56 +106,57 @@
     white-space: nowrap;
   }
 
+  .row-label.radio-label {
+    padding-top: 2px;
+    align-self: center;
+  }
+
   .req-dot {
     color: var(--openidea-danger, #f75464);
     margin-left: 2px;
   }
 
-  .type-chips {
+  .radio-list {
     display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+    flex-direction: column;
+    gap: 5px;
   }
 
-  .type-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 8px;
-    border-radius: 4px;
-    border: 1px solid var(--openidea-border, #43454a);
-    background: var(--openidea-bg-input, #2b2d30);
-    color: var(--openidea-fg, #bcbec4);
-    font-family: inherit;
-    font-size: 12px;
+  .radio-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
     cursor: pointer;
-    transition: background-color 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background-color 0.1s ease;
   }
 
-  .type-chip:hover {
-    background: var(--openidea-bg-hover, #35373b);
+  .radio-item:hover {
+    background: var(--openidea-bg-hover, rgba(255, 255, 255, 0.05));
+  }
+
+  .radio-item input[type="radio"] {
+    margin: 3px 0 0 0;
+    accent-color: var(--openidea-accent, #3574f0);
+    width: 14px;
+    height: 14px;
+    flex: 0 0 auto;
+    cursor: pointer;
+  }
+
+  .radio-text {
     color: var(--openidea-fg-strong, #dfe1e5);
   }
 
-  .type-chip.active {
-    background: rgba(53, 116, 240, 0.18);
-    border-color: var(--openidea-accent, #3574f0);
-    color: var(--openidea-fg-strong, #ffffff);
-  }
-
-  .type-code {
+  .radio-code {
     font-family: var(--openidea-font-mono, "JetBrains Mono", Consolas, monospace);
-    font-weight: 600;
+    font-size: 12px;
     color: var(--openidea-accent, #548af7);
+    margin-left: 4px;
   }
 
-  .type-chip.active .type-code {
-    color: var(--openidea-fg-strong, #ffffff);
-  }
-
-  .type-desc {
-    margin-top: 5px;
-    font-size: 11.5px;
+  .radio-desc {
     color: var(--openidea-fg-muted, #868a91);
   }
 
@@ -123,7 +168,7 @@
     color: var(--openidea-fg-strong, #dfe1e5);
     border: 1px solid var(--openidea-border, #43454a);
     border-radius: 4px;
-    padding: 5px 8px;
+    padding: 6px 8px;
     font-family: inherit;
     font-size: inherit;
     line-height: 1.45;
@@ -239,31 +284,23 @@
 
   .issues-row {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     align-items: center;
   }
 
   .issues-row select {
-    width: 96px;
-    flex: 0 0 96px;
-    padding: 5px 6px;
-  }
-
-  .check-stack {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
+    width: 98px;
+    flex: 0 0 98px;
+    padding: 6px 6px;
   }
 
   .check-row {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     cursor: pointer;
     user-select: none;
     color: var(--openidea-fg-strong, #dfe1e5);
-    font-size: 12.5px;
   }
 
   .check-row input[type="checkbox"] {
@@ -272,6 +309,10 @@
     height: 14px;
     accent-color: var(--openidea-accent, #3574f0);
     cursor: pointer;
+  }
+
+  .sub-check {
+    margin-top: 6px;
   }
 
   .field-hint {
@@ -316,7 +357,7 @@
     white-space: pre-wrap;
     word-break: break-word;
     color: var(--openidea-fg-strong, #dfe1e5);
-    max-height: 136px;
+    max-height: 120px;
     overflow-y: auto;
   }
 
@@ -332,12 +373,6 @@
     display: block;
   }
 
-  .status-banner.ok {
-    background: rgba(87, 150, 92, 0.16);
-    color: var(--openidea-success, #6aab73);
-    border: 1px solid rgba(87, 150, 92, 0.35);
-  }
-
   .status-banner.err {
     background: rgba(247, 84, 100, 0.14);
     color: var(--openidea-danger, #f75464);
@@ -350,7 +385,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    padding: 9px 14px;
+    padding: 10px 20px;
     border-top: 1px solid var(--openidea-border, #393b40);
     background: var(--openidea-bg, #1e1f22);
   }
@@ -359,12 +394,13 @@
   .footer-right {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
   }
 
   .btn {
-    height: 28px;
-    padding: 0 12px;
+    min-width: 72px;
+    height: 29px;
+    padding: 0 14px;
     border-radius: 4px;
     font-family: inherit;
     font-size: inherit;
@@ -393,7 +429,8 @@
   }
 
   .btn-ghost {
-    padding: 0 8px;
+    min-width: auto;
+    padding: 0 10px;
     border-color: transparent;
     background: transparent;
     color: var(--openidea-fg-muted, #9da0a8);
@@ -406,99 +443,102 @@
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="form-scroll">
-    <div class="mode-tip">
-      <span>日常提交可直接点击 Commit 工具栏图标使用自动关闭的弹窗向导</span>
-    </div>
-
-    <div class="grid">
-      <div class="row-label">提交类型</div>
-      <div>
-        <div class="type-chips" id="typeList" role="radiogroup" aria-label="提交类型"></div>
-        <div class="type-desc" id="typeDesc"></div>
-      </div>
-
-      <label class="row-label" for="scopeInput">变更范围</label>
-      <div class="combo" id="scopeCombo">
-        <input id="scopeInput" type="text" placeholder="可选，如 auth、api、workflow" autocomplete="off" />
-        <button type="button" class="combo-btn" id="scopeToggle" title="选择常用变更范围" aria-label="展开变更范围历史">
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-            <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+<div class="backdrop">
+  <div class="dialog-card" role="dialog" aria-labelledby="dialogTitle">
+    <div class="dialog-header">
+      <span class="dialog-title" id="dialogTitle">编辑提交消息</span>
+      <div class="header-actions">
+        <button type="button" class="icon-btn" id="headerReloadBtn" title="重新读取当前提交框内容" aria-label="重新读取">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M13.5 8A5.5 5.5 0 1 1 11.9 4.1M13.5 2.5V5.5H10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <div class="combo-menu" id="scopeMenu"></div>
+        <button type="button" class="icon-btn" id="closeIconBtn" title="取消并关闭 (Esc)" aria-label="关闭">×</button>
       </div>
+    </div>
 
-      <label class="row-label" for="subjectInput">简短说明<span class="req-dot">*</span></label>
-      <div>
-        <input id="subjectInput" type="text" placeholder="必填：一句话概括本次变更" autocomplete="off" />
-        <div class="field-hint">
-          <span>按 Ctrl+Enter 快速填入提交框</span>
-          <span id="headerCount">0 字符</span>
+    <div class="form-scroll">
+      <div class="grid">
+        <div class="row-label radio-label">提交类型</div>
+        <div class="radio-list" id="typeList"></div>
+
+        <label class="row-label" for="scopeInput">变更范围</label>
+        <div class="combo" id="scopeCombo">
+          <input id="scopeInput" type="text" placeholder="可选，如 auth、api、workflow" autocomplete="off" />
+          <button type="button" class="combo-btn" id="scopeToggle" title="选择常用变更范围" aria-label="展开变更范围历史">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div class="combo-menu" id="scopeMenu"></div>
         </div>
-      </div>
 
-      <label class="row-label" for="bodyInput">详细说明</label>
-      <div>
+        <label class="row-label" for="subjectInput">简短说明<span class="req-dot">*</span></label>
+        <div>
+          <input id="subjectInput" type="text" placeholder="必填：一句话概括本次变更" autocomplete="off" />
+          <div class="field-hint">
+            <span>按 Ctrl+Enter 确定填入 · 按 Esc 取消关闭</span>
+            <span id="headerCount">0 字符</span>
+          </div>
+        </div>
+
+        <label class="row-label" for="bodyInput">详细说明</label>
         <textarea id="bodyInput" placeholder="可选：详细描述改动背景、原因或实现要点"></textarea>
-        <div style="margin-top: 6px;" class="check-stack">
-          <label class="check-row">
-            <input id="wrap72Input" type="checkbox" checked />
-            <span>正文超过 72 字符自动换行</span>
-          </label>
+
+        <div></div>
+        <label class="check-row">
+          <input id="wrap72Input" type="checkbox" checked />
+          <span>超过 72 字符换行?</span>
+        </label>
+
+        <label class="row-label" for="breakingInput">重大变化</label>
+        <div>
+          <textarea id="breakingInput" class="textarea-compact" placeholder="可选：描述不兼容变更（自动添加 BREAKING CHANGE: 前缀）"></textarea>
+          <div class="sub-check">
+            <label class="check-row">
+              <input id="breakingBangInput" type="checkbox" />
+              <span>标题附带 <code>!</code> 破坏性标记（如 <code>feat!:</code>）</span>
+            </label>
+          </div>
         </div>
-      </div>
 
-      <label class="row-label" for="breakingInput">重大变化</label>
-      <div>
-        <textarea id="breakingInput" class="textarea-compact" placeholder="可选：描述不兼容变更（自动添加 BREAKING CHANGE: 前缀）"></textarea>
-        <div style="margin-top: 6px;" class="check-stack">
-          <label class="check-row">
-            <input id="breakingBangInput" type="checkbox" />
-            <span>在标题添加 <code>!</code> 标记（如 <code>feat!:</code>）</span>
-          </label>
+        <label class="row-label" for="issuesInput">关闭 issues</label>
+        <div class="issues-row">
+          <select id="issueKeywordSelect" aria-label="Issue 关键字">
+            <option value="Closes">Closes</option>
+            <option value="Fixes">Fixes</option>
+            <option value="Resolves">Resolves</option>
+          </select>
+          <input id="issuesInput" type="text" placeholder="可选：如 #123, #456（自动添加前缀）" autocomplete="off" />
         </div>
-      </div>
 
-      <label class="row-label" for="issuesInput">关联 Issues</label>
-      <div class="issues-row">
-        <select id="issueKeywordSelect" aria-label="Issue 关联关键字">
-          <option value="Closes">Closes</option>
-          <option value="Fixes">Fixes</option>
-          <option value="Resolves">Resolves</option>
-        </select>
-        <input id="issuesInput" type="text" placeholder="可选：如 #123, #456 或 PROJ-88" autocomplete="off" />
-      </div>
-
-      <div></div>
-      <div class="check-stack">
+        <div></div>
         <label class="check-row">
           <input id="skipCiInput" type="checkbox" />
-          <span>跳过 CI 流程（附带 <code>[skip ci]</code>）</span>
+          <span>跳过 CI 流程?</span>
         </label>
       </div>
-    </div>
 
-    <div class="preview-box">
-      <div class="preview-header">
-        <span>提交信息预览</span>
-        <span id="previewMeta">1 行</span>
+      <div class="preview-box">
+        <div class="preview-header">
+          <span>提交信息预览</span>
+          <span id="previewMeta">1 行</span>
+        </div>
+        <pre class="preview-content" id="previewText"></pre>
       </div>
-      <pre class="preview-content" id="previewText"></pre>
+
+      <div class="status-banner" id="statusBanner"></div>
     </div>
 
-    <div class="status-banner" id="statusBanner"></div>
-  </div>
-
-  <div class="footer">
-    <div class="footer-left">
-      <button type="button" class="btn btn-ghost" id="reloadBtn" title="从当前 Commit 输入框重新读取">读取当前</button>
-      <button type="button" class="btn btn-ghost" id="resetBtn" title="清空所有字段">清空</button>
-    </div>
-    <div class="footer-right">
-      <button type="button" class="btn" id="restoreBtn" title="恢复为上次读取时的内容">还原修改</button>
-      <button type="button" class="btn btn-primary" id="okBtn">填入提交框</button>
+    <div class="footer">
+      <div class="footer-left">
+        <button type="button" class="btn btn-ghost" id="reloadBtn" title="从当前 Commit 输入框重新读取">读取当前</button>
+        <button type="button" class="btn btn-ghost" id="resetBtn" title="清空表单">重置</button>
+      </div>
+      <div class="footer-right">
+        <button type="button" class="btn btn-primary" id="okBtn">好的</button>
+        <button type="button" class="btn" id="cancelBtn">取消</button>
+      </div>
     </div>
   </div>
 </div>
@@ -506,23 +546,20 @@
 <script>
 (function () {
   const TYPES = [
-    { id: "feat", short: "新功能", desc: "新增功能或特性" },
-    { id: "fix", short: "修复Bug", desc: "修复线上或测试发现的错误" },
-    { id: "docs", short: "文档", desc: "仅文档或注释变更" },
-    { id: "style", short: "格式", desc: "不影响代码逻辑的格式调整（空格、缩进、分号等）" },
-    { id: "refactor", short: "重构", desc: "既不修 Bug 也不加功能的代码结构优化" },
-    { id: "perf", short: "性能", desc: "提升执行效率或资源占用的改动" },
-    { id: "test", short: "测试", desc: "新增或修正单元测试、集成测试" },
-    { id: "build", short: "构建", desc: "影响构建系统或外部依赖版本的更改" },
-    { id: "ci", short: "CI", desc: "修改持续集成配置与流水线脚本" },
-    { id: "chore", short: "其他", desc: "不涉及业务源码与测试的其他维护改动" },
-    { id: "revert", short: "回滚", desc: "撤销并恢复之前的提交" }
+    { id: "feat", title: "新功能、新特性", desc: "一个新功能" },
+    { id: "fix", title: "修复 Bug", desc: "错误修复" },
+    { id: "docs", title: "编辑文档", desc: "仅文档更改" },
+    { id: "style", title: "代码格式修改", desc: "不影响代码含义的更改（例如：空格、格式、缺少分号）" },
+    { id: "refactor", title: "代码重构", desc: "既不修复错误也不添加功能的代码更改" },
+    { id: "perf", title: "代码优化", desc: "提高性能的代码更改" },
+    { id: "test", title: "测试用例新增/修改", desc: "添加缺失的测试或纠正现有测试" },
+    { id: "build", title: "修改项目构建/依赖", desc: "影响构建系统或外部依赖项的更改（例如：gulp、broccoli、npm）" },
+    { id: "ci", title: "修改持续集成配置", desc: "对 CI 配置文件和脚本的更改（例如：Travis、Circle、BrowserStack、SauceLabs）" },
+    { id: "chore", title: "其他修改", desc: "其他不修改 src 或测试文件的更改" },
+    { id: "revert", title: "恢复上一次提交", desc: "恢复之前的提交" }
   ];
 
-  const INITIAL = "__START__";
-
   const typeListEl = document.getElementById("typeList");
-  const typeDescEl = document.getElementById("typeDesc");
   const scopeInput = document.getElementById("scopeInput");
   const scopeToggle = document.getElementById("scopeToggle");
   const scopeMenu = document.getElementById("scopeMenu");
@@ -538,52 +575,66 @@
   const previewText = document.getElementById("previewText");
   const previewMeta = document.getElementById("previewMeta");
   const statusBanner = document.getElementById("statusBanner");
+  const headerReloadBtn = document.getElementById("headerReloadBtn");
+  const closeIconBtn = document.getElementById("closeIconBtn");
   const reloadBtn = document.getElementById("reloadBtn");
   const resetBtn = document.getElementById("resetBtn");
-  const restoreBtn = document.getElementById("restoreBtn");
   const okBtn = document.getElementById("okBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
 
   const hasBridge = Boolean(window.openidea && typeof window.openidea.postMessage === "function");
 
-  let selectedType = "feat";
   let recentScopes = [];
-  let lastLoadedForm = null;
 
-  function renderTypeChips() {
+  function renderTypeRadios() {
     typeListEl.innerHTML = "";
     for (const item of TYPES) {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "type-chip";
-      btn.dataset.type = item.id;
-
-      const codeSpan = document.createElement("span");
-      codeSpan.className = "type-code";
-      codeSpan.textContent = item.id;
-
-      const nameSpan = document.createElement("span");
-      nameSpan.textContent = item.short;
-
-      btn.appendChild(codeSpan);
-      btn.appendChild(nameSpan);
-      btn.addEventListener("click", () => {
+      const label = document.createElement("label");
+      label.className = "radio-item";
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = "commitType";
+      radio.value = item.id;
+      radio.addEventListener("change", () => {
         clearStatus();
-        setSelectedType(item.id);
         requestPreview();
       });
-      typeListEl.appendChild(btn);
+
+      const textWrap = document.createElement("span");
+      const titleSpan = document.createElement("span");
+      titleSpan.className = "radio-text";
+      titleSpan.textContent = item.title;
+
+      const codeSpan = document.createElement("span");
+      codeSpan.className = "radio-code";
+      codeSpan.textContent = "(" + item.id + ")";
+
+      const descSpan = document.createElement("span");
+      descSpan.className = "radio-desc";
+      descSpan.textContent = " - " + item.desc;
+
+      textWrap.appendChild(titleSpan);
+      textWrap.appendChild(codeSpan);
+      textWrap.appendChild(descSpan);
+      label.appendChild(radio);
+      label.appendChild(textWrap);
+      typeListEl.appendChild(label);
     }
   }
 
+  function getSelectedType() {
+    const checked = typeListEl.querySelector('input[name="commitType"]:checked');
+    return checked ? checked.value : "feat";
+  }
+
   function setSelectedType(type) {
-    const matched = TYPES.find((t) => t.id === type) || TYPES[0];
-    selectedType = matched.id;
-    for (const btn of typeListEl.querySelectorAll(".type-chip")) {
-      const active = btn.dataset.type === selectedType;
-      btn.classList.toggle("active", active);
-      btn.setAttribute("aria-checked", active ? "true" : "false");
+    const target = typeListEl.querySelector('input[name="commitType"][value="' + type + '"]');
+    if (target) {
+      target.checked = true;
+    } else {
+      const first = typeListEl.querySelector('input[name="commitType"]');
+      if (first) first.checked = true;
     }
-    typeDescEl.textContent = matched.id + "：" + matched.desc;
   }
 
   function normalizeIssueKeyword(kw) {
@@ -595,7 +646,7 @@
 
   function readForm() {
     return {
-      commitType: selectedType,
+      commitType: getSelectedType(),
       scope: scopeInput.value,
       subject: subjectInput.value,
       body: bodyInput.value,
@@ -608,11 +659,8 @@
     };
   }
 
-  function populateForm(form, saveSnapshot) {
+  function populateForm(form) {
     if (!form) return;
-    if (saveSnapshot) {
-      lastLoadedForm = Object.assign({}, form);
-    }
     setSelectedType(form.commitType || "feat");
     scopeInput.value = form.scope || "";
     subjectInput.value = form.subject || "";
@@ -664,9 +712,9 @@
     }
   }
 
-  function showStatus(kind, text) {
+  function showError(text) {
     statusBanner.textContent = text;
-    statusBanner.className = "status-banner show " + kind;
+    statusBanner.className = "status-banner show err";
   }
 
   function clearStatus() {
@@ -679,7 +727,7 @@
     if (!recentScopes || recentScopes.length === 0) {
       const empty = document.createElement("div");
       empty.className = "combo-empty";
-      empty.textContent = "暂无常用变更范围，直接输入并填入后会自动记忆";
+      empty.textContent = "暂无常用变更范围，直接输入即可自动记忆";
       scopeMenu.appendChild(empty);
       return;
     }
@@ -721,11 +769,16 @@
     if (!form.subject.trim()) {
       subjectInput.classList.add("invalid");
       subjectInput.focus();
-      showStatus("err", "请先填写简短说明（提交标题不能为空）。");
+      showError("请填写简短说明（提交标题不能为空）。");
       return;
     }
     subjectInput.classList.remove("invalid");
     send({ op: "apply", form });
+  }
+
+  function cancelDialog() {
+    clearStatus();
+    send({ op: "cancel" });
   }
 
   scopeToggle.addEventListener("click", (e) => {
@@ -757,15 +810,16 @@
   }
 
   okBtn.addEventListener("click", submitForm);
+  cancelBtn.addEventListener("click", cancelDialog);
+  closeIconBtn.addEventListener("click", cancelDialog);
 
-  restoreBtn.addEventListener("click", () => {
+  function triggerReload() {
     clearStatus();
-    if (lastLoadedForm) {
-      populateForm(lastLoadedForm, false);
-      requestPreview();
-      showStatus("ok", "已还原为上次读取时的内容，未改动 Git 提交框。");
-    }
-  });
+    send({ op: "reload" });
+  }
+
+  reloadBtn.addEventListener("click", triggerReload);
+  headerReloadBtn.addEventListener("click", triggerReload);
 
   resetBtn.addEventListener("click", () => {
     clearStatus();
@@ -780,14 +834,9 @@
       issues: "",
       issueKeyword: "Closes",
       skipCi: false
-    }, false);
+    });
     requestPreview();
     subjectInput.focus();
-  });
-
-  reloadBtn.addEventListener("click", () => {
-    clearStatus();
-    send({ op: "reload" });
   });
 
   document.addEventListener("keydown", (e) => {
@@ -796,30 +845,21 @@
       submitForm();
       return;
     }
-    if (e.key === "Escape" && scopeMenu.classList.contains("open")) {
+    if (e.key === "Escape") {
       e.preventDefault();
       e.stopPropagation();
-      scopeMenu.classList.remove("open");
+      if (scopeMenu.classList.contains("open")) {
+        scopeMenu.classList.remove("open");
+      } else {
+        cancelDialog();
+      }
     }
   });
 
-  renderTypeChips();
-
-  if (INITIAL && typeof INITIAL === "object") {
-    recentScopes = Array.isArray(INITIAL.scopes) ? INITIAL.scopes : [];
-    renderScopeMenu();
-    populateForm(INITIAL.form || {}, true);
-    if (INITIAL.preview) {
-      renderPreview(INITIAL.preview);
-    } else {
-      requestPreview();
-    }
-  } else {
-    renderScopeMenu();
-    populateForm({}, true);
-    requestPreview();
-    send({ op: "ready" });
-  }
+  renderTypeRadios();
+  renderScopeMenu();
+  populateForm({});
+  requestPreview();
 
   if (window.openidea && typeof window.openidea.onMessage === "function") {
     window.openidea.onMessage((raw) => {
@@ -837,7 +877,7 @@
           renderScopeMenu();
         }
         if (msg.form) {
-          populateForm(msg.form, true);
+          populateForm(msg.form);
         }
         if (msg.preview) {
           renderPreview(msg.preview);
@@ -850,25 +890,13 @@
       } else if (msg.op === "scopes") {
         recentScopes = Array.isArray(msg.scopes) ? msg.scopes : [];
         renderScopeMenu();
-      } else if (msg.op === "applied") {
-        if (Array.isArray(msg.scopes)) {
-          recentScopes = msg.scopes;
-          renderScopeMenu();
-        }
-        if (msg.form) {
-          populateForm(msg.form, true);
-        } else {
-          lastLoadedForm = readForm();
-        }
-        if (msg.preview) {
-          renderPreview(msg.preview);
-        }
-        showStatus("ok", "已填入 Git 提交消息输入框。");
       } else if (msg.op === "error") {
-        showStatus("err", msg.message || "操作失败，请确认当前项目已打开 Git 仓库。");
+        showError(msg.message || "操作失败，请确认当前项目已打开 Git 仓库。");
       }
     });
   }
+
+  send({ op: "ready" });
 })();
 </script>
 </body>
