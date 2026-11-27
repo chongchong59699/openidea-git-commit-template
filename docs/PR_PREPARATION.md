@@ -54,7 +54,7 @@ shasum -a 256 chongchong59699.git-commit-template-1.4.0.oiplugin
 ```toml
 name = "chongchong59699"
 owners = ["chongchong59699"]
-keys = ["<粘贴第 1 步打印出的公钥>"]
+keys = ["qUdLq01QidzJMCM6lsQVd9MrFvKHZA+IJ+LiZc6+IJI="]
 revoked-keys = []
 ```
 

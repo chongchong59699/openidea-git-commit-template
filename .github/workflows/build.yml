@@ -1,4 +1,4 @@
-name: Build OpenIDEA Plugin
+name: Build & Release OpenIDEA Plugin
 
 on:
   push:
@@ -21,19 +21,82 @@ jobs:
 
       - name: Download openidea-plugin CLI (v0.1.54)
         run: |
-          curl -sL https://github.com/l0ng-ai/openidea/releases/download/v0.1.54/openidea-plugin-linux-x86_64.gz | gunzip > openidea-plugin
+          curl -fsSL https://github.com/l0ng-ai/openidea/releases/download/v0.1.54/openidea-plugin-linux-x86_64.gz | gunzip > openidea-plugin
           chmod +x openidea-plugin
 
       - name: Run unit tests
         run: cargo test
 
-      - name: Build & check WASM plugin
+      - name: Build, sign & verify WASM plugin
+        id: pack
+        env:
+          OPENIDEA_PLUGIN_KEY: ${{ secrets.OPENIDEA_PLUGIN_KEY }}
         run: |
           ./openidea-plugin build .
-          ./openidea-plugin pack .
+          if [ -n "$OPENIDEA_PLUGIN_KEY" ]; then
+            printf '%s' "$OPENIDEA_PLUGIN_KEY" > "$RUNNER_TEMP/publisher.key"
+            chmod 600 "$RUNNER_TEMP/publisher.key"
+            ./openidea-plugin pack . --key "$RUNNER_TEMP/publisher.key" --publisher chongchong59699
+            rm -f "$RUNNER_TEMP/publisher.key"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+              echo "::error::OPENIDEA_PLUGIN_KEY secret is required to publish a signed tag release."
+              exit 1
+            fi
+            ./openidea-plugin pack .
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          PKG="$(ls -1 *.oiplugin | head -n 1)"
+          ./openidea-plugin check "$PKG"
+          SHA256="$(sha256sum "$PKG" | awk '{print $1}')"
+          echo "package=$PKG" >> "$GITHUB_OUTPUT"
+          echo "sha256=$SHA256" >> "$GITHUB_OUTPUT"
+          echo "Built package: $PKG"
+          echo "SHA-256: $SHA256"
 
       - name: Upload .oiplugin artifact
         uses: actions/upload-artifact@v4
         with:
           name: git-commit-template-oiplugin
           path: "*.oiplugin"
+
+      - name: Publish GitHub Release on tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PKG: ${{ steps.pack.outputs.package }}
+          SHA256: ${{ steps.pack.outputs.sha256 }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          VER="${TAG#v}"
+          URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${PKG}"
+          cat > "$RUNNER_TEMP/release-notes.md" <<EOF
+          ## Git Commit Template ${TAG}
+
+          Signed OpenIDEA plugin package for **OpenIDEA v0.1.54+** (Plugin API \`^1.18\`).
+
+          - **Package**: \`${PKG}\`
+          - **SHA-256**: \`${SHA256}\`
+
+          ### Registry Entry (\`plugins/chongchong59699.git-commit-template.toml\`)
+
+          \`\`\`toml
+          repository = "https://github.com/${GITHUB_REPOSITORY}"
+
+          [[versions]]
+          version = "${VER}"
+          package = "${URL}"
+          sha256 = "${SHA256}"
+          \`\`\`
+          EOF
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$PKG" --clobber
+            gh release edit "$TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
+          else
+            gh release create "$TAG" "$PKG" \
+              --title "Git Commit Template ${TAG}" \
+              --notes-file "$RUNNER_TEMP/release-notes.md"
+          fi
