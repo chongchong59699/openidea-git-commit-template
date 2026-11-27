@@ -1,0 +1,36 @@
+id = "local.git-commit-template"
+name = "Git Commit Template"
+version = "1.0.0"
+description = "挂载在 Git 提交面板工具栏的提交信息模板插件，通过可视化表单快捷生成并填充规范的 Conventional Commits 提交信息。"
+authors = ["Local Developer"]
+license = "MIT"
+change-notes = "1.0.0 — 初始版本：支持 Commit 工具栏快捷按钮、完整可视化表单、72 字符自动换行、常用变更范围记忆、实时预览与一键回填。"
+categories = ["vcs", "tools"]
+icon = "icon.svg"
+icon-dark = "icon_dark.svg"
+engines.openidea = "^1.3"
+wasm = "dist/plugin.wasm"
+activation = ["on-view:editor", "on-command:*"]
+
+[capabilities]
+required = ["vcs.read", "vcs.write", "storage"]
+
+[[contributes.commands]]
+id = "open"
+title = "编辑提交消息 (Git Commit Template)"
+category = "Git Commit Template"
+
+[[contributes.menus]]
+menu = "commit.message"
+command = "open"
+
+[[contributes.views]]
+id = "editor"
+title = "编辑提交消息"
+icon = "icon.svg"
+location = "right"
+
+[[contributes.keymaps]]
+command = "open"
+key = "Ctrl+Alt+Shift+C"
+mac = "Meta+Alt+Shift+C"

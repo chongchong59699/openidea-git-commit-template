@@ -1,0 +1,39 @@
+name: Build OpenIDEA Plugin
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust & wasm32-wasip2
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-wasip2
+
+      - name: Download openidea-plugin CLI (v0.1.53)
+        run: |
+          curl -sL https://github.com/l0ng-ai/openidea/releases/download/v0.1.53/openidea-plugin-linux-x86_64.gz | gunzip > openidea-plugin
+          chmod +x openidea-plugin
+
+      - name: Run unit tests
+        run: cargo test
+
+      - name: Build & check WASM plugin
+        run: |
+          ./openidea-plugin build .
+          ./openidea-plugin pack .
+
+      - name: Upload .oiplugin artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: git-commit-template-oiplugin
+          path: "*.oiplugin"
