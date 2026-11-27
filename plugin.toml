@@ -1,10 +1,10 @@
 id = "local.git-commit-template"
 name = "Git Commit Template"
-version = "1.0.0"
-description = "挂载在 Git 提交面板工具栏的提交信息模板插件，通过可视化表单快捷生成并填充规范的 Conventional Commits 提交信息。"
+version = "1.1.0"
+description = "挂载在 Git 提交面板工具栏的提交信息模板插件，支持原生弹窗快速向导、侧边高级编辑面板与 Conventional Commits 提交前规范检查。"
 authors = ["Local Developer"]
 license = "MIT"
-change-notes = "1.0.0 — 初始版本：支持 Commit 工具栏快捷按钮、完整可视化表单、72 字符自动换行、常用变更范围记忆、实时预览与一键回填。"
+change-notes = "1.1.0 — 新增原生弹窗快速填充向导（确认或按 Esc 自动关闭），优化侧边高级编辑面板交互与预览同步，新增 Conventional Commits 提交前检查，修复正文误识别为 Issues 及 ! / Fixes 丢失等问题。"
 categories = ["vcs", "tools"]
 icon = "icon.svg"
 icon-dark = "icon_dark.svg"
@@ -17,18 +17,31 @@ required = ["vcs.read", "vcs.write", "storage"]
 
 [[contributes.commands]]
 id = "open"
-title = "编辑提交消息 (Git Commit Template)"
+title = "快速生成提交消息 (弹窗向导)"
+category = "Git Commit Template"
+
+[[contributes.commands]]
+id = "open_panel"
+title = "打开提交消息高级编辑面板"
 category = "Git Commit Template"
 
 [[contributes.menus]]
 menu = "commit.message"
 command = "open"
 
+[[contributes.menus]]
+menu = "tools"
+command = "open_panel"
+
 [[contributes.views]]
 id = "editor"
 title = "编辑提交消息"
 icon = "icon.svg"
 location = "right"
+
+[[contributes.commitChecks]]
+id = "conventional"
+title = "Conventional Commits 规范检查"
 
 [[contributes.keymaps]]
 command = "open"
