@@ -369,7 +369,7 @@
 
       <label class="row-label" for="subjectInput">简短说明</label>
       <div>
-        <input id="subjectInput" type="text" placeholder="一句话概括本次变更" autocomplete="off" />
+        <input id="subjectInput" type="text" placeholder="可选：一句话概括本次变更" autocomplete="off" />
         <div class="field-hint">
           <span>按 Ctrl+Enter 快速填入</span>
           <span id="headerCount">0 字符</span>
@@ -664,11 +664,6 @@
   function submitForm() {
     clearStatus();
     const form = readForm();
-    if (!form.subject.trim()) {
-      showStatus("err", "请填写「简短说明」后再确认。");
-      subjectInput.focus();
-      return;
-    }
     send({ op: "apply", form });
   }
 

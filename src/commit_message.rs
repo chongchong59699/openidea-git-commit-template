@@ -334,4 +334,21 @@ mod tests {
         assert_eq!(parsed.subject, "临时提交");
         assert_eq!(parsed.body, "补充说明");
     }
+
+    #[test]
+    fn allows_empty_subject_format_and_parse() {
+        let form = CommitForm {
+            commit_type: "fix".into(),
+            scope: "api".into(),
+            subject: String::new(),
+            ..CommitForm::default()
+        };
+        let formatted = format_commit_message(&form);
+        assert_eq!(formatted, "fix(api): ");
+
+        let parsed = parse_commit_message(&formatted, "feat", true);
+        assert_eq!(parsed.commit_type, "fix");
+        assert_eq!(parsed.scope, "api");
+        assert_eq!(parsed.subject, "");
+    }
 }

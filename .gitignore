@@ -1,2 +1,11 @@
 /target
 *.oiplugin
+PROJECT_MEMORY.md
+.idea/
+.codex/
+*.log
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+/.openidea/
