@@ -19,9 +19,9 @@ jobs:
         with:
           targets: wasm32-wasip2
 
-      - name: Download openidea-plugin CLI (v0.1.53)
+      - name: Download openidea-plugin CLI (v0.1.54)
         run: |
-          curl -sL https://github.com/l0ng-ai/openidea/releases/download/v0.1.53/openidea-plugin-linux-x86_64.gz | gunzip > openidea-plugin
+          curl -sL https://github.com/l0ng-ai/openidea/releases/download/v0.1.54/openidea-plugin-linux-x86_64.gz | gunzip > openidea-plugin
           chmod +x openidea-plugin
 
       - name: Run unit tests

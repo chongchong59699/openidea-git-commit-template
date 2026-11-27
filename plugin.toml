@@ -1,20 +1,20 @@
 id = "chongchong59699.git-commit-template"
 name = "Git Commit Template"
-version = "1.3.0"
-description = "Visual Conventional Commits form for the Git Commit toolbar, featuring a centered auto-closing dialog card, scope history, 72-char wrapping, and before-commit checks."
+version = "1.4.0"
+description = "Visual Conventional Commits modal dialog for the Git Commit toolbar, with scope history, 72-char wrapping, 11 languages, and before-commit checks."
 authors = ["chongchong59699"]
 homepage = "https://github.com/chongchong59699/openidea-git-commit-template"
 license = "MIT"
-change-notes = "1.3.0 — Full multi-language localization (11 languages), centered auto-closing commit template form, lossless ! / Fixes round-tripping, and Conventional Commits check."
+change-notes = "1.4.0 — Migrated to OpenIDEA v0.1.54 native modal dialogs ([[contributes.dialogs]], API 1.18): true resizable IDE dialog with Esc/OK/Cancel auto-close and zero high-risk capabilities (removed ide.commands)."
 categories = ["vcs", "tools"]
 icon = "icon.svg"
 icon-dark = "icon_dark.svg"
-engines.openidea = "^1.16"
+engines.openidea = "^1.18"
 wasm = "dist/plugin.wasm"
 activation = ["on-view:editor", "on-command:*"]
 
 [capabilities]
-required = ["vcs.read", "vcs.write", "storage", "ide.commands"]
+required = ["vcs.read", "vcs.write", "storage"]
 
 [[contributes.commands]]
 id = "open"
@@ -29,14 +29,12 @@ command = "open"
 menu = "tools"
 command = "open"
 
-[[contributes.customEditors]]
+[[contributes.dialogs]]
 id = "editor"
 title = "Edit Commit Message"
-patterns = ["*.git-commit-template"]
-priority = "default"
-layout = "tab"
 web = "web/index.html"
-binary = true
+width = 780
+height = 820
 
 [[contributes.commitChecks]]
 id = "conventional"

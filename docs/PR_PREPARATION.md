@@ -10,7 +10,7 @@
 
 1. **开源协议完备**：根目录已补齐标准 MIT [LICENSE](../LICENSE)，与 [plugin.toml](../plugin.toml) 中的 `license = "MIT"` 一致。
 2. **发布者命名规范**：`plugin.toml` 中 `id` 已规范为 `chongchong59699.git-commit-template`（匹配你的 GitHub 账号前缀），并填写了 `authors` 与 `homepage`。
-3. **高风险权限透明披露（必审项）**：官方明确要求申请 `ide.commands` 等高风险能力必须在 README 中解释原因。我们已在 [README.md](../README.md) 与 [README.zh-CN.md](../README.zh-CN.md) 的 **Permissions & Capabilities Justification** 章节明确说明：`ide.commands` 仅用于调用 `toolwindow.focusEditor` 和 `editor.closeTab` 实现确定/取消后自动关闭表单页，绝无进程、网络或文件越权操作。
+3. **零高风险权限（审核最友好）**：借助 OpenIDEA `v0.1.54`（API 1.18）原生 `[[contributes.dialogs]]`，插件已彻底移除 `ide.commands`，仅申请 `vcs.read`、`vcs.write`、`storage` 三项低风险权限，无网络、进程或文件越权风险。
 4. **完整国际化（11 种语言）**：
    - 清单原文采用英文（符合官方 `pluginText.ts` 规范），`locales/` 内置 `zh-CN`、`zh-TW`、`ja`、`ko`、`fr`、`es-MX`、`pt-BR`、`pl`、`tr-TR`、`ru` 共 10 套翻译表。
    - Rust 后端与 `web/index.html` 全量支持 11 种语言动态切换。
@@ -37,15 +37,15 @@ openidea-plugin keygen ~/chongchong59699.key
 
 终端会打印出一行 Ed25519 公钥字符串（记下来，下一步填到 `publishers/chongchong59699.toml`），请妥善保管好私钥 `~/chongchong59699.key`（以后发新版本还要用同一把私钥签名）。
 
-### 第 2 步：签名打包并发布本仓库 GitHub Release `v1.3.0`
+### 第 2 步：签名打包并发布本仓库 GitHub Release `v1.4.0`
 
 ```bash
 openidea-plugin build .
 openidea-plugin pack . --key ~/chongchong59699.key --publisher chongchong59699
-shasum -a 256 chongchong59699.git-commit-template-1.3.0.oiplugin
+shasum -a 256 chongchong59699.git-commit-template-1.4.0.oiplugin
 ```
 
-在 `https://github.com/chongchong59699/openidea-git-commit-template/releases/new` 创建 Tag `v1.3.0`，把生成的 `chongchong59699.git-commit-template-1.3.0.oiplugin` 作为附件上传发布，并记录上面输出的 `sha256` 值。
+在 `https://github.com/chongchong59699/openidea-git-commit-template/releases/new` 创建 Tag `v1.4.0`，把生成的 `chongchong59699.git-commit-template-1.4.0.oiplugin` 作为附件上传发布，并记录上面输出的 `sha256` 值。
 
 ### 第 3 步：Fork `l0ng-ai/openidea-plugins` 并新增两个文件
 
@@ -64,38 +64,38 @@ revoked-keys = []
 repository = "https://github.com/chongchong59699/openidea-git-commit-template"
 
 [[versions]]
-version = "1.3.0"
-package = "https://github.com/chongchong59699/openidea-git-commit-template/releases/download/v1.3.0/chongchong59699.git-commit-template-1.3.0.oiplugin"
+version = "1.4.0"
+package = "https://github.com/chongchong59699/openidea-git-commit-template/releases/download/v1.4.0/chongchong59699.git-commit-template-1.4.0.oiplugin"
 sha256 = "<粘贴第 2 步计算出的 sha256>"
 ```
 
 ### 第 4 步：可直接复制的 PR 标题与正文模板
 
 **PR Title:**
-`Add chongchong59699.git-commit-template 1.3.0`
+`Add chongchong59699.git-commit-template 1.4.0`
 
 **PR Description:**
 ```markdown
 ## Summary
 
-Adds **Git Commit Template** (`chongchong59699.git-commit-template` `v1.3.0`) and registers publisher `chongchong59699`.
+Adds **Git Commit Template** (`chongchong59699.git-commit-template` `v1.4.0`) and registers publisher `chongchong59699`.
 
 - **Source repository**: https://github.com/chongchong59699/openidea-git-commit-template (MIT License)
 - **Categories**: `vcs`, `tools`
-- **Target API**: `^1.16` (built and verified with `openidea-plugin` v0.1.53)
+- **Target API**: `^1.18` (built and verified with `openidea-plugin` v0.1.54)
 
 ## What It Does
 
-Provides a visual **Conventional Commits** form mounted on the Git Commit message toolbar (`commit.message`), plus an optional before-commit format validator (`commitChecks`):
-- Opens a centered dialog-style card in the editor area with 11 standard commit types, recent scope history, 72-char wrapping (Latin & CJK), breaking change `!` / footer support, `Closes` / `Fixes` / `Resolves` issue linking, `[skip ci]`, and two-way parsing of existing commit drafts.
-- Automatically writes the formatted commit message and closes the form tab on **OK** (`Ctrl+Enter`) or **Cancel** (`Esc`).
+Provides a visual **Conventional Commits** modal dialog (`[[contributes.dialogs]]`) mounted on the Git Commit message toolbar (`commit.message`), plus an optional before-commit format validator (`commitChecks`):
+- Opens a native, resizable IDE modal dialog with 11 standard commit types, recent scope history, 72-char wrapping (Latin & CJK), breaking change `!` / footer support, `Closes` / `Fixes` / `Resolves` issue linking, `[skip ci]`, and two-way parsing of existing commit drafts.
+- Automatically writes the formatted commit message and closes via `openidea.dialog.close()` on **OK** (`Ctrl+Enter`) or **Cancel** / `Esc`.
 - Fully localized across **11 languages** (`en`, `zh-CN`, `zh-TW`, `ja`, `ko`, `fr`, `es-MX`, `pt-BR`, `pl`, `tr-TR`, `ru`).
 
-## Capabilities Justification
+## Capabilities
 
-- `vcs.read` / `vcs.write`: Reads the current pending commit draft to pre-fill the form / run `commitChecks`, and writes the formatted message back to the Commit input box.
-- `storage`: Stores recent commit scopes and default preferences locally.
-- `ide.commands`: Used **exclusively** to invoke `toolwindow.focusEditor` and `editor.closeTab` in `src/lib.rs` (`close_form_tab`) so the custom-editor form tab closes automatically upon confirmation or cancellation. No network, process, or filesystem capabilities outside the sandbox are requested.
+Only three low-risk capabilities are requested (zero high-risk capabilities):
+- `vcs.read` / `vcs.write`: Reads the pending commit draft to pre-fill the form / run `commitChecks`, and writes the formatted message back to the Commit input box.
+- `storage`: Persists recent commit scopes and default preferences locally.
 
 ## Screenshots
 

@@ -2,9 +2,9 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md) | **日本語**
 
-**OpenIDEA（`v0.1.53+`、Plugin API `^1.16`）** 向けのビジュアル **Conventional Commits** テンプレートプラグインです。
+**OpenIDEA（`v0.1.54+`、Plugin API `^1.18`）** 向けのビジュアル **Conventional Commits** テンプレートプラグインです。
 
-Git コミットパネルのツールバーからワンクリックで画面中央に**カード形式の入力フォーム**を表示し、**OK**（または `Ctrl+Enter` / `Cmd+Enter`）でコミット欄へ反映して**自動的にフォームを閉じます**。
+Git コミットパネルのツールバーからワンクリックで **IDE ネイティブのモーダルダイアログ**（`[[contributes.dialogs]]`）を表示し、**OK**（または `Ctrl+Enter` / `Cmd+Enter`）でコミット欄へ反映して**自動的にダイアログを閉じます**。
 
 ![Git Commit Template — 日本語 UI](docs/screenshots/ja.png)
 
@@ -22,10 +22,9 @@ Git コミットパネルのツールバーからワンクリックで画面中�
 
 ## 権限（Capabilities）について
 
-本プラグインは WebAssembly サンドボックス内で動作し、ネットワーク・外部プロセス・プロジェクトファイルへのアクセスを行いません。
+本プラグインは WebAssembly サンドボックス内で動作し、**高リスク権限は一切不要**です（ネットワーク・プロセス・`ide.commands`・ファイルアクセスなし）：
 - `vcs.read` / `vcs.write`：コミット下書きの読み取りと反映に使用します。
 - `storage`：スコープ履歴と設定の保存に使用します。
-- `ide.commands`：OK / キャンセル押下時にフォームタブを自動で閉じるため、`toolwindow.focusEditor` と `editor.closeTab` の呼び出し**のみ**に使用します。
 
 ## ライセンス
 

@@ -2,9 +2,9 @@
 
 **English** | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
 
-A visual **Conventional Commits** template plugin for **OpenIDEA** (`v0.1.53+`, Plugin API `^1.16`).
+A visual **Conventional Commits** template plugin for **OpenIDEA** (`v0.1.54+`, Plugin API `^1.18`).
 
-Mounted directly on the Git Commit toolbar, clicking the icon opens a centered, dialog-style commit form in the main editor area — fill in your structured commit message, press **OK** (or `Ctrl+Enter` / `Cmd+Enter`), and the plugin writes the formatted message into the Commit input box and **automatically closes the form**.
+Mounted directly on the Git Commit toolbar, clicking the icon opens a **native, resizable IDE modal dialog** (`[[contributes.dialogs]]`) — fill in your structured commit message, press **OK** (or `Ctrl+Enter` / `Cmd+Enter`), and the plugin writes the formatted message into the Commit input box and **automatically closes the dialog**.
 
 ![Git Commit Template — English UI](docs/screenshots/en.png)
 
@@ -41,16 +41,15 @@ Mounted directly on the Git Commit toolbar, clicking the icon opens a centered, 
 - **Full Internationalization (11 Languages)**:
   - Automatically follows OpenIDEA's UI language (`en`, `zh-CN`, `zh-TW`, `ja`, `ko`, `fr`, `es-MX`, `pt-BR`, `pl`, `tr-TR`, `ru`) across manifest menus, form UI, validation hints, and commit checks.
 
-## Permissions & Capabilities Justification
+## Permissions & Capabilities
 
-In accordance with OpenIDEA's security model, this plugin runs in a sandboxed WebAssembly component with **no network, process, or project-file access**. It requests only the following capabilities:
+In accordance with OpenIDEA's security model, this plugin runs in a sandboxed WebAssembly component with **zero high-risk capabilities** (no network, process, `ide.commands`, or filesystem access). It requests only three low-risk capabilities:
 
 | Capability | Risk Level | Why It Is Needed |
 | --- | --- | --- |
 | `vcs.read` | Low | Reads the current pending commit draft (`host::pending_commit`) to pre-fill the form and run the optional before-commit format check. |
 | `vcs.write` | Low | Writes the formatted Conventional Commits message back into the Commit input box (`host::set_commit_message`). |
 | `storage` | Low | Persists up to 20 recent scopes and your preferred default type / 72-char wrap toggle in plugin-local storage. |
-| `ide.commands` | High | Invokes **only** `toolwindow.focusEditor` and `editor.closeTab` so the centered custom-editor form tab closes itself automatically when you click **OK**, **Cancel**, or press `Esc` (since `openidea:plugin/views` does not yet expose a dedicated `close` API). No external commands, VCS pushes, or shell actions are ever executed. |
 
 ## Installation
 

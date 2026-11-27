@@ -2,9 +2,9 @@
 
 [English](README.md) | **简体中文** | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
 
-面向 **OpenIDEA（`v0.1.53+`，Plugin API `^1.16`）** 的可视化 **Conventional Commits** 提交信息模板插件。
+面向 **OpenIDEA（`v0.1.54+`，Plugin API `^1.18`）** 的可视化 **Conventional Commits** 提交信息模板插件。
 
-挂载在 Git 提交（Commit）面板输入框上方工具栏中，点击图标即可在主编辑区居中弹出**完整卡片式大表单**；填写完毕后点击 **【好的】**（或按 `Ctrl+Enter` / `Cmd+Enter`），即可一键写入 Commit 输入框并**自动关闭表单页**。
+挂载在 Git 提交（Commit）面板输入框上方工具栏中，点击图标即可弹出 **IDE 原生可调整大小的模态对话框**（`[[contributes.dialogs]]`）；填写完毕后点击 **【好的】**（或按 `Ctrl+Enter` / `Cmd+Enter`），即可一键写入 Commit 输入框并**自动关闭弹窗**。
 
 ![Git Commit Template — 简体中文界面](docs/screenshots/zh-CN.png)
 
@@ -30,14 +30,13 @@
 
 ## 权限与安全说明
 
-本插件运行在 OpenIDEA 的 WebAssembly 沙箱中，**不申请任何网络、外部进程或项目文件读写权限**。所声明的权限及用途如下：
+本插件运行在 OpenIDEA 的 WebAssembly 沙箱中，**不包含任何高风险权限**（不申请网络、进程、`ide.commands` 或文件系统权限），仅申请以下 3 项低风险权限：
 
 | 权限名称 | 风险等级 | 具体用途说明 |
 | --- | --- | --- |
 | `vcs.read` | 低 | 读取当前待提交草稿（`host::pending_commit`），用于自动回填表单及执行可选的提交前格式检查。 |
 | `vcs.write` | 低 | 将生成的规范提交信息写入 Commit 输入框（`host::set_commit_message`）。 |
 | `storage` | 低 | 在插件本地键值存储中保存最近使用的 20 条 Scope、上次选择的提交类型与换行偏好。 |
-| `ide.commands` | 高 | **仅用于**在点击【好的】、【取消】或按 `Esc` 时调用 `toolwindow.focusEditor` 与 `editor.closeTab` 自动关闭表单标签页（因当前 `openidea:plugin/views` 尚未提供独立的关闭视图接口）。插件绝不调用任何提交推送、终端或外部命令。 |
 
 ## 安装方法
 

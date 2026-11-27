@@ -2,9 +2,9 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | **繁體中文** | [日本語](README.ja.md)
 
-面向 **OpenIDEA（`v0.1.53+`，Plugin API `^1.16`）** 的視覺化 **Conventional Commits** 提交訊息範本外掛。
+面向 **OpenIDEA（`v0.1.54+`，Plugin API `^1.18`）** 的視覺化 **Conventional Commits** 提交訊息範本外掛。
 
-掛載於 Git 提交（Commit）面板輸入框上方的工具列中，點擊圖示即可在主編輯區置中彈出**完整卡片式大表單**；填寫完成後點擊 **【確定】**（或按 `Ctrl+Enter` / `Cmd+Enter`），即可一鍵寫入 Commit 輸入框並**自動關閉表單頁**。
+掛載於 Git 提交（Commit）面板輸入框上方的工具列中，點擊圖示即可彈出 **IDE 原生可調整大小的模態對話框**（`[[contributes.dialogs]]`）；填寫完成後點擊 **【確定】**（或按 `Ctrl+Enter` / `Cmd+Enter`），即可一鍵寫入 Commit 輸入框並**自動關閉視窗**。
 
 ![Git Commit Template — 繁體中文介面](docs/screenshots/zh-TW.png)
 
@@ -23,10 +23,9 @@
 
 ## 權限與安全說明
 
-本外掛運行於 WebAssembly 沙箱中，無網路、外部程序或專案檔案存取權限：
+本外掛運行於 WebAssembly 沙箱中，**無任何高風險權限**（無網路、外部程序、`ide.commands` 或檔案系統存取權限）：
 - `vcs.read` / `vcs.write`：讀取與回寫目前待提交的 Commit 訊息草稿。
 - `storage`：儲存常用變更範圍與預設選項。
-- `ide.commands`：**僅用於**點擊確定或取消後執行 `toolwindow.focusEditor` 與 `editor.closeTab` 自動關閉表單分頁。
 
 ## 授權條款
 

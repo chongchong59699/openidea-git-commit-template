@@ -42,16 +42,6 @@ impl UiLocale {
         }
     }
 
-    pub fn form_file_name(self) -> &'static str {
-        match self {
-            Self::ZhCn => "编辑提交消息.git-commit-template",
-            Self::ZhTw => "編輯提交訊息.git-commit-template",
-            Self::Ja => "コミットメッセージ編集.git-commit-template",
-            Self::Ko => "커밋-메시지-편집.git-commit-template",
-            _ => "Edit-Commit-Message.git-commit-template",
-        }
-    }
-
     pub fn empty_subject_error(self) -> &'static str {
         match self {
             Self::ZhCn => "请填写简短说明（提交标题不能为空）。",

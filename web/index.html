@@ -13,76 +13,19 @@
     margin: 0;
     padding: 0;
     height: 100%;
-    background: var(--openidea-bg-canvas, #16171a);
+    background: var(--openidea-bg, #1e1f22);
     color: var(--openidea-fg, #bcbec4);
     font-family: var(--openidea-font-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif);
     font-size: var(--openidea-font-size, 13px);
     line-height: 1.45;
   }
 
-  .backdrop {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    height: 100%;
-    padding: 16px 20px;
-    overflow: hidden;
-  }
-
-  .dialog-card {
+  .app {
     display: flex;
     flex-direction: column;
-    width: min(760px, 100%);
-    max-height: calc(100vh - 32px);
+    height: 100%;
+    min-height: 100vh;
     background: var(--openidea-bg, #1e1f22);
-    border: 1px solid var(--openidea-border, #3f4147);
-    border-radius: 8px;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.38);
-    overflow: hidden;
-  }
-
-  .dialog-header {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--openidea-border, #393b40);
-    user-select: none;
-  }
-
-  .dialog-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--openidea-fg-strong, #dfe1e5);
-  }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .icon-btn {
-    width: 26px;
-    height: 26px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    border-radius: 4px;
-    color: var(--openidea-fg-muted, #9da0a8);
-    cursor: pointer;
-    padding: 0;
-    font-size: 16px;
-    line-height: 1;
-  }
-
-  .icon-btn:hover {
-    background: var(--openidea-bg-hover, rgba(255, 255, 255, 0.08));
-    color: var(--openidea-fg-strong, #dfe1e5);
   }
 
   .form-scroll {
@@ -443,21 +386,8 @@
 </style>
 </head>
 <body>
-<div class="backdrop">
-  <div class="dialog-card" role="dialog" aria-labelledby="dialogTitle">
-    <div class="dialog-header">
-      <span class="dialog-title" id="dialogTitle">Edit Commit Message</span>
-      <div class="header-actions">
-        <button type="button" class="icon-btn" id="headerReloadBtn" title="Reload from Commit box" aria-label="Reload">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <path d="M13.5 8A5.5 5.5 0 1 1 11.9 4.1M13.5 2.5V5.5H10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <button type="button" class="icon-btn" id="closeIconBtn" title="Cancel and close (Esc)" aria-label="Close">×</button>
-      </div>
-    </div>
-
-    <div class="form-scroll">
+<div class="app">
+  <div class="form-scroll">
       <div class="grid">
         <div class="row-label radio-label" id="lblType">Commit Type</div>
         <div class="radio-list" id="typeList"></div>
@@ -540,7 +470,6 @@
         <button type="button" class="btn" id="cancelBtn">Cancel</button>
       </div>
     </div>
-  </div>
 </div>
 
 <script>
@@ -1101,7 +1030,6 @@
     return I18N[currentLocaleKey] || I18N["en"];
   }
 
-  const dialogTitleEl = document.getElementById("dialogTitle");
   const lblTypeEl = document.getElementById("lblType");
   const lblScopeEl = document.getElementById("lblScope");
   const lblSubjectEl = document.getElementById("lblSubject");
@@ -1130,8 +1058,6 @@
   const previewText = document.getElementById("previewText");
   const previewMeta = document.getElementById("previewMeta");
   const statusBanner = document.getElementById("statusBanner");
-  const headerReloadBtn = document.getElementById("headerReloadBtn");
-  const closeIconBtn = document.getElementById("closeIconBtn");
   const reloadBtn = document.getElementById("reloadBtn");
   const resetBtn = document.getElementById("resetBtn");
   const okBtn = document.getElementById("okBtn");
@@ -1187,7 +1113,6 @@
     const d = dict();
     document.documentElement.lang = d.htmlLang;
     document.title = d.dialogTitle;
-    dialogTitleEl.textContent = d.dialogTitle;
     lblTypeEl.textContent = d.lblType;
     lblScopeEl.textContent = d.lblScope;
     lblSubjectEl.textContent = d.lblSubject;
@@ -1208,12 +1133,10 @@
 
     reloadBtn.textContent = d.btnReload;
     reloadBtn.title = d.tipReload;
-    headerReloadBtn.title = d.tipReload;
     resetBtn.textContent = d.btnReset;
     resetBtn.title = d.tipReset;
     okBtn.textContent = d.btnOk;
     cancelBtn.textContent = d.btnCancel;
-    closeIconBtn.title = d.tipClose;
     scopeToggle.title = d.tipScopeToggle;
 
     renderTypeRadios(getSelectedType());
@@ -1394,9 +1317,15 @@
     send({ op: "apply", form });
   }
 
+  function closeDialog() {
+    if (window.openidea && window.openidea.dialog && typeof window.openidea.dialog.close === "function") {
+      window.openidea.dialog.close();
+    }
+  }
+
   function cancelDialog() {
     clearStatus();
-    send({ op: "cancel" });
+    closeDialog();
   }
 
   scopeToggle.addEventListener("click", (e) => {
@@ -1429,15 +1358,11 @@
 
   okBtn.addEventListener("click", submitForm);
   cancelBtn.addEventListener("click", cancelDialog);
-  closeIconBtn.addEventListener("click", cancelDialog);
 
-  function triggerReload() {
+  reloadBtn.addEventListener("click", () => {
     clearStatus();
     send({ op: "reload" });
-  }
-
-  reloadBtn.addEventListener("click", triggerReload);
-  headerReloadBtn.addEventListener("click", triggerReload);
+  });
 
   resetBtn.addEventListener("click", () => {
     clearStatus();
@@ -1463,14 +1388,10 @@
       submitForm();
       return;
     }
-    if (e.key === "Escape") {
+    if (e.key === "Escape" && scopeMenu.classList.contains("open")) {
       e.preventDefault();
       e.stopPropagation();
-      if (scopeMenu.classList.contains("open")) {
-        scopeMenu.classList.remove("open");
-      } else {
-        cancelDialog();
-      }
+      scopeMenu.classList.remove("open");
     }
   });
 
@@ -1565,6 +1486,8 @@
       } else if (msg.op === "scopes") {
         recentScopes = Array.isArray(msg.scopes) ? msg.scopes : [];
         renderScopeMenu();
+      } else if (msg.op === "applied") {
+        closeDialog();
       } else if (msg.op === "error") {
         showError(msg.message || dict().errGeneric);
       }

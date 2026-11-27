@@ -13,7 +13,7 @@ use openidea_plugin::{
 };
 use serde_json::{Value, json};
 
-pub const VIEW_ID: &str = "editor";
+pub const DIALOG_ID: &str = "editor";
 pub const CHECK_ID: &str = "conventional";
 
 const STORAGE_SCOPES: &str = "recent_scopes";
@@ -112,7 +112,7 @@ impl GitCommitTemplate {
     }
 
     fn post_json(message: &Value) {
-        let _ = host::post_view_message(VIEW_ID, &message.to_string());
+        let _ = host::post_view_message(DIALOG_ID, &message.to_string());
     }
 
     fn send_init_from_pending_commit() {
@@ -129,7 +129,7 @@ impl GitCommitTemplate {
         }));
     }
 
-    fn open_centered_form() -> Result<(), Error> {
+    fn open_dialog() -> Result<(), Error> {
         let (_, locale) = Self::current_locale();
         if host::pending_commit()?.is_none() {
             host::notify(
@@ -140,18 +140,9 @@ impl GitCommitTemplate {
             return Ok(());
         }
 
-        let dir = host::fs::plugin_dir()?;
-        let file_name = locale.form_file_name();
-        let path = format!("{}/{file_name}", dir.trim_end_matches(['/', '\\']));
-        host::fs::write_bytes(&path, b"GCT")?;
-        host::open_location(&path, 0, 0)?;
+        host::reveal_view(DIALOG_ID)?;
         Self::send_init_from_pending_commit();
         Ok(())
-    }
-
-    fn close_form_tab() {
-        let _ = host::execute_command("toolwindow.focusEditor", None);
-        let _ = host::execute_command("editor.closeTab", None);
     }
 
     fn apply_form(&mut self, form: CommitForm) -> Result<(), Error> {
@@ -178,13 +169,13 @@ impl GitCommitTemplate {
 
         match host::set_commit_message(draft.revision, &formatted) {
             Ok(()) => {
-                Self::close_form_tab();
+                Self::post_json(&json!({ "op": "applied" }));
                 Ok(())
             }
             Err(Error::Stale) => {
                 if let Some(fresh) = host::pending_commit()? {
                     host::set_commit_message(fresh.revision, &formatted)?;
-                    Self::close_form_tab();
+                    Self::post_json(&json!({ "op": "applied" }));
                     Ok(())
                 } else {
                     Self::post_json(&json!({
@@ -214,7 +205,7 @@ impl Plugin for GitCommitTemplate {
     ) -> Result<Option<String>, Error> {
         match id {
             "open" => {
-                Self::open_centered_form()?;
+                Self::open_dialog()?;
                 Ok(None)
             }
             _ => Err(Error::NotFound(format!("command {id}"))),
@@ -248,7 +239,7 @@ impl Views for GitCommitTemplate {
         _viewport: Option<Viewport>,
         _ctx: &Invocation,
     ) -> Result<View, Error> {
-        if view != VIEW_ID {
+        if view != DIALOG_ID {
             return Err(Error::NotFound(view.into()));
         }
         let (_, locale) = Self::current_locale();
@@ -258,7 +249,7 @@ impl Views for GitCommitTemplate {
     }
 
     fn handle(&mut self, view: &str, event: ViewEvent, _ctx: &Invocation) -> Result<(), Error> {
-        if view != VIEW_ID {
+        if view != DIALOG_ID {
             return Err(Error::NotFound(view.into()));
         }
         if let ViewEvent::Message(raw) = event {
@@ -300,10 +291,6 @@ impl Views for GitCommitTemplate {
                     }
                     Ok(())
                 }
-                Some("cancel") => {
-                    Self::close_form_tab();
-                    Ok(())
-                }
                 _ => Ok(()),
             }
         } else {
@@ -318,11 +305,9 @@ register_plugin!(GitCommitTemplate, views, commit_checks);
 mod tests {
     use super::*;
     use openidea_plugin::mock::MockHost;
-    use std::cell::Cell;
-    use std::rc::Rc;
 
     #[test]
-    fn open_command_respects_locale_and_posts_init() {
+    fn open_command_reveals_dialog_and_posts_localized_init() {
         let host = MockHost::install();
         host.set_locale("zh-CN");
         host.set_commit_draft(Some(CommitDraft {
@@ -337,13 +322,11 @@ mod tests {
             .run_command("open", &host.invocation(), None)
             .expect("open command should succeed");
 
-        let opened = host.opened_locations();
-        assert_eq!(opened.len(), 1);
-        assert!(opened[0].0.ends_with("编辑提交消息.git-commit-template"));
+        assert_eq!(host.revealed_views(), vec![DIALOG_ID.to_string()]);
 
         let messages = host.view_messages();
         assert_eq!(messages.len(), 1);
-        assert_eq!(messages[0].0, VIEW_ID);
+        assert_eq!(messages[0].0, DIALOG_ID);
         assert!(messages[0].1.contains("\"locale\":\"zh-CN\""));
         assert!(messages[0].1.contains("\"commitType\":\"fix\""));
         assert!(messages[0].1.contains("\"scope\":\"api\""));
@@ -352,7 +335,7 @@ mod tests {
     }
 
     #[test]
-    fn apply_writes_commit_message_and_closes_form_tab() {
+    fn apply_writes_commit_message_and_notifies_dialog_to_close() {
         let host = MockHost::install();
         host.set_commit_draft(Some(CommitDraft {
             message: String::new(),
@@ -360,13 +343,6 @@ mod tests {
             revision: 3,
             changes: vec![],
         }));
-
-        let closed = Rc::new(Cell::new(false));
-        let closed_ref = closed.clone();
-        host.on_command("editor.closeTab", move |_| {
-            closed_ref.set(true);
-            Ok(None)
-        });
 
         let mut plugin = GitCommitTemplate::default();
         let payload = json!({
@@ -387,7 +363,7 @@ mod tests {
 
         plugin
             .handle(
-                VIEW_ID,
+                DIALOG_ID,
                 ViewEvent::Message(payload.to_string()),
                 &host.invocation(),
             )
@@ -401,40 +377,51 @@ mod tests {
              Closes #12\n\n\
              [skip ci]"
         );
-        assert!(closed.get(), "form tab should auto-close after apply");
+        let messages = host.view_messages();
+        assert!(messages.iter().any(|(v, m)| v == DIALOG_ID && m.contains("\"op\":\"applied\"")));
         assert_eq!(GitCommitTemplate::load_scopes(), vec!["workflow".to_string()]);
     }
 
     #[test]
-    fn cancel_closes_form_tab_without_modifying_commit() {
+    fn apply_rejects_empty_subject_without_applied_signal() {
         let host = MockHost::install();
+        host.set_locale("en");
         host.set_commit_draft(Some(CommitDraft {
-            message: "chore: 原始草稿".into(),
+            message: String::new(),
             amend: false,
-            revision: 5,
+            revision: 1,
             changes: vec![],
         }));
 
-        let closed = Rc::new(Cell::new(false));
-        let closed_ref = closed.clone();
-        host.on_command("editor.closeTab", move |_| {
-            closed_ref.set(true);
-            Ok(None)
+        let mut plugin = GitCommitTemplate::default();
+        let empty_payload = json!({
+            "op": "apply",
+            "form": {
+                "commitType": "feat",
+                "scope": "",
+                "subject": "   ",
+                "body": "",
+                "wrap72": true,
+                "breakingBang": false,
+                "breaking": "",
+                "issues": "",
+                "issueKeyword": "Closes",
+                "skipCi": false
+            }
         });
 
-        let mut plugin = GitCommitTemplate::default();
         plugin
             .handle(
-                VIEW_ID,
-                ViewEvent::Message(json!({ "op": "cancel" }).to_string()),
+                DIALOG_ID,
+                ViewEvent::Message(empty_payload.to_string()),
                 &host.invocation(),
             )
-            .expect("cancel should succeed");
+            .expect("empty subject should return Ok with inline error");
 
-        assert!(closed.get(), "form tab should auto-close on cancel");
-        let draft = host.commit_draft().unwrap();
-        assert_eq!(draft.message, "chore: 原始草稿");
-        assert_eq!(draft.revision, 5);
+        assert_eq!(host.commit_draft().unwrap().message, "");
+        let messages = host.view_messages();
+        assert!(messages.iter().any(|(v, m)| v == DIALOG_ID && m.contains("\"op\":\"error\"")));
+        assert!(!messages.iter().any(|(_, m)| m.contains("\"op\":\"applied\"")));
     }
 
     #[test]
